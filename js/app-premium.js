@@ -339,6 +339,12 @@ class MariachiAppPremium {
             case 'admin':
                 this.loadAdminSection();
                 break;
+            case 'videos':
+                this.loadVideosSection();
+                break;
+            case 'gallery':
+                this.loadGallerySection();
+                break;
             default:
                 this.loadHomeSection();
         }
@@ -493,6 +499,18 @@ class MariachiAppPremium {
         if (window.loadAdminContent) {
             window.loadAdminContent();
         }
+    }
+
+    loadVideosSection() {
+        const content = document.getElementById('mainContent');
+        content.innerHTML = `<div id="videosContent"></div>`;
+        if (window.loadVideosContent) window.loadVideosContent();
+    }
+
+    loadGallerySection() {
+        const content = document.getElementById('mainContent');
+        content.innerHTML = `<div id="galleryContent"></div>`;
+        if (window.loadGalleryContent) window.loadGalleryContent();
     }
     
     showNotification(message, type = 'info') {

@@ -725,6 +725,334 @@ window.loadPartiturasContent = function() {
     }
 };
 
+};
+
+// ===================================
+// VIDEOS SECTION (YouTube Player)
+// ===================================
+window.loadVideosContent = function() {
+    const container = document.getElementById('videosContent');
+    const isAdmin = window.authClient && window.authClient.isSuperAdmin();
+
+    const mariachVideos = [
+        { id: 'nM5IF_83kMs', title: 'Mariachi Vargas - El Son de la Negra', cat: 'Clásico' },
+        { id: 'VnDqBfcfBRs', title: 'Cielito Lindo - Mariachi en Plaza Garibaldi', cat: 'Tradicional' },
+        { id: 'M_j2fM3Eya0', title: 'El Rey - Vicente Fernández', cat: 'Ranchera' },
+        { id: 'Ga7doeIu0sg', title: 'Amor Eterno - Juan Gabriel & Rocío Dúrcal', cat: 'Balada' },
+        { id: 'K8R0jVkMCws', title: 'Volver Volver - Vicente Fernández', cat: 'Ranchera' },
+        { id: 'UScN8tGEBQY', title: 'La Bikina - Luis Miguel', cat: 'Bolero' },
+        { id: 'P-GvNhPEkm0', title: 'Cucurrucucú Paloma - Caetano Veloso', cat: 'Internacional' },
+        { id: '4v3dF67wLYo', title: 'Sabor a Mí - Los Panchos', cat: 'Bolero' },
+    ];
+
+    container.innerHTML = `
+        <style>
+            .videos-section { max-width: var(--container-max); margin: 0 auto; padding: 2rem; }
+            .videos-header { text-align: center; margin-bottom: 2.5rem; padding-top: 1rem; }
+            .videos-header h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--gold-primary); }
+            .videos-header p { color: var(--gray-400); font-size: 1.1rem; margin-top: 0.5rem; }
+
+            .video-player-area { margin-bottom: 2.5rem; }
+            .video-player-container { position: relative; width: 100%; padding-bottom: 56.25%; border-radius: 16px; overflow: hidden; background: var(--black); border: 2px solid rgba(255,184,0,0.2); }
+            .video-player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+            .video-player-title { margin-top: 1rem; font-family: var(--font-display); font-size: 1.3rem; color: var(--white); }
+            .video-player-cat { font-size: 0.85rem; color: var(--gold-primary); margin-top: 0.25rem; }
+
+            .video-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+            .video-thumb { background: var(--gray-900); border: 1px solid rgba(255,184,0,0.12); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+            .video-thumb:hover { border-color: var(--gold-primary); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,184,0,0.1); }
+            .video-thumb.active { border-color: var(--gold-primary); box-shadow: 0 0 0 2px var(--gold-primary); }
+            .video-thumb-img { position: relative; width: 100%; padding-bottom: 56.25%; background: var(--gray-800); }
+            .video-thumb-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+            .video-thumb-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 48px; height: 48px; background: rgba(255,184,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+            .video-thumb-play i { color: var(--black); font-size: 1.2rem; margin-left: 3px; }
+            .video-thumb-info { padding: 1rem; }
+            .video-thumb-title { color: var(--white); font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
+            .video-thumb-cat { color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; }
+
+            .video-add-panel { background: var(--gray-900); border: 1px solid rgba(255,184,0,0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+            .video-add-panel h3 { color: var(--gold-primary); font-size: 1.1rem; margin-bottom: 1rem; }
+            .video-add-form { display: flex; gap: 0.75rem; }
+            .video-add-form input { flex: 1; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,184,0,0.2); color: var(--white); border-radius: 8px; font-size: 0.95rem; }
+            .video-add-form input:focus { outline: none; border-color: var(--gold-primary); }
+            .video-add-form button { padding: 0.75rem 1.5rem; background: var(--gold-primary); color: var(--black); border: none; border-radius: 8px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+            @media (max-width: 768px) {
+                .video-list { grid-template-columns: 1fr; }
+                .video-add-form { flex-direction: column; }
+            }
+        </style>
+
+        <div class="videos-section">
+            <div class="videos-header">
+                <h1>${t('videos.page_title')}</h1>
+                <p>${t('videos.page_subtitle')}</p>
+            </div>
+
+            <div class="video-player-area">
+                <div class="video-player-container" id="videoPlayer">
+                    <iframe id="ytPlayer" src="https://www.youtube.com/embed/${mariachVideos[0].id}?rel=0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                </div>
+                <div class="video-player-title" id="videoTitle">${mariachVideos[0].title}</div>
+                <div class="video-player-cat" id="videoCat">${mariachVideos[0].cat}</div>
+            </div>
+
+            ${isAdmin ? `
+            <div class="video-add-panel">
+                <h3>➕ ${t('videos.add_title')}</h3>
+                <div class="video-add-form">
+                    <input id="videoUrlInput" placeholder="${t('videos.add_placeholder')}" type="text">
+                    <input id="videoNameInput" placeholder="${t('videos.add_name')}" type="text">
+                    <button onclick="addCustomVideo()">${t('videos.add_btn')}</button>
+                </div>
+            </div>
+            ` : ''}
+
+            <h2 style="font-family:var(--font-display);color:var(--white);font-size:1.3rem;margin-bottom:1.25rem;">${t('videos.playlist')}</h2>
+            <div class="video-list" id="videoList"></div>
+        </div>
+    `;
+
+    // Store videos in window for dynamic add
+    window._videoList = [...mariachVideos];
+    renderVideoList();
+};
+
+function renderVideoList() {
+    const list = document.getElementById('videoList');
+    if (!list) return;
+
+    list.innerHTML = window._videoList.map((v, i) => `
+        <div class="video-thumb ${i === 0 ? 'active' : ''}" onclick="playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}', '${v.cat}', this)">
+            <div class="video-thumb-img">
+                <img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" alt="${v.title}" loading="lazy">
+                <div class="video-thumb-play"><i class="fas fa-play"></i></div>
+            </div>
+            <div class="video-thumb-info">
+                <div class="video-thumb-title">${v.title}</div>
+                <div class="video-thumb-cat">${v.cat}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.playVideo = function(id, title, cat, el) {
+    const player = document.getElementById('ytPlayer');
+    const titleEl = document.getElementById('videoTitle');
+    const catEl = document.getElementById('videoCat');
+
+    if (player) player.src = 'https://www.youtube.com/embed/' + id + '?rel=0&autoplay=1';
+    if (titleEl) titleEl.textContent = title;
+    if (catEl) catEl.textContent = cat;
+
+    document.querySelectorAll('.video-thumb').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.addCustomVideo = function() {
+    const urlInput = document.getElementById('videoUrlInput');
+    const nameInput = document.getElementById('videoNameInput');
+    const url = urlInput.value.trim();
+    const name = nameInput.value.trim() || 'Video personalizado';
+
+    // Extract YouTube ID
+    let videoId = '';
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (match) videoId = match[1];
+
+    if (!videoId) {
+        window.app.showNotification(t('videos.invalid_url'), 'error');
+        return;
+    }
+
+    window._videoList.unshift({ id: videoId, title: name, cat: 'Personalizado' });
+    renderVideoList();
+    playVideo(videoId, name, 'Personalizado', document.querySelector('.video-thumb'));
+    urlInput.value = '';
+    nameInput.value = '';
+    window.app.showNotification(t('videos.added'), 'success');
+};
+
+// ===================================
+// GALLERY SECTION (Image Upload)
+// ===================================
+window.loadGalleryContent = function() {
+    const container = document.getElementById('galleryContent');
+    const isAuth = window.authClient && window.authClient.isAuthenticated();
+
+    container.innerHTML = `
+        <style>
+            .gallery-section { max-width: var(--container-max); margin: 0 auto; padding: 2rem; }
+            .gallery-header { text-align: center; margin-bottom: 2.5rem; padding-top: 1rem; }
+            .gallery-header h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--gold-primary); }
+            .gallery-header p { color: var(--gray-400); font-size: 1.1rem; margin-top: 0.5rem; }
+
+            .gallery-upload { background: var(--gray-900); border: 2px dashed rgba(255,184,0,0.3); border-radius: 16px; padding: 3rem; text-align: center; margin-bottom: 2rem; cursor: pointer; transition: all 0.3s; }
+            .gallery-upload:hover, .gallery-upload.dragover { border-color: var(--gold-primary); background: rgba(255,184,0,0.05); }
+            .gallery-upload i { font-size: 3rem; color: var(--gold-primary); margin-bottom: 1rem; display: block; }
+            .gallery-upload h3 { color: var(--white); font-size: 1.3rem; margin-bottom: 0.5rem; }
+            .gallery-upload p { color: var(--gray-400); font-size: 0.9rem; }
+            .gallery-upload-input { display: none; }
+
+            .gallery-progress { margin-top: 1rem; display: none; }
+            .gallery-progress-bar { height: 6px; background: var(--gray-700); border-radius: 3px; overflow: hidden; }
+            .gallery-progress-fill { height: 100%; background: var(--gold-primary); width: 0%; transition: width 0.3s; }
+            .gallery-status { margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-400); }
+
+            .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+            .gallery-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: var(--gray-900); border: 1px solid rgba(255,184,0,0.1); cursor: pointer; transition: all 0.3s; }
+            .gallery-item:hover { border-color: var(--gold-primary); transform: scale(1.03); }
+            .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+            .gallery-item-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.75rem; background: linear-gradient(transparent, rgba(0,0,0,0.8)); opacity: 0; transition: opacity 0.3s; }
+            .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+            .gallery-item-name { color: var(--white); font-size: 0.85rem; font-weight: 600; }
+            .gallery-item-date { color: var(--gray-400); font-size: 0.75rem; }
+
+            .gallery-lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 2000; cursor: pointer; }
+            .gallery-lightbox img { max-width: 90%; max-height: 90vh; border-radius: 8px; }
+            .gallery-lightbox-close { position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; color: var(--white); cursor: pointer; }
+
+            .gallery-empty { text-align: center; padding: 4rem 2rem; }
+            .gallery-empty i { font-size: 4rem; color: var(--gray-700); margin-bottom: 1rem; display: block; }
+            .gallery-empty p { color: var(--gray-500); font-size: 1.1rem; }
+
+            .gallery-counter { text-align: center; color: var(--gray-500); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+            @media (max-width: 768px) {
+                .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            }
+        </style>
+
+        <div class="gallery-section">
+            <div class="gallery-header">
+                <h1>${t('gallery.page_title')}</h1>
+                <p>${t('gallery.page_subtitle')}</p>
+            </div>
+
+            ${isAuth ? `
+            <div class="gallery-upload" id="galleryDropZone" onclick="document.getElementById('galleryFileInput').click()">
+                <i class="fas fa-camera"></i>
+                <h3>${t('gallery.upload_title')}</h3>
+                <p>${t('gallery.upload_desc')}</p>
+                <input type="file" class="gallery-upload-input" id="galleryFileInput" accept="image/*" multiple capture="environment" onchange="handleGalleryUpload(this)">
+            </div>
+            <div class="gallery-progress" id="galleryProgress">
+                <div class="gallery-progress-bar"><div class="gallery-progress-fill" id="galleryProgressFill"></div></div>
+                <div class="gallery-status" id="galleryStatus"></div>
+            </div>
+            ` : `<p style="text-align:center;color:var(--gray-500);margin-bottom:2rem;">${t('gallery.login_required')}</p>`}
+
+            <div class="gallery-counter" id="galleryCounter"></div>
+            <div class="gallery-grid" id="galleryGrid">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">${t('gallery.loading')}</div>
+            </div>
+        </div>
+    `;
+
+    // Setup drag & drop
+    setupDropZone('galleryDropZone', 'galleryFileInput');
+
+    // Load existing images
+    loadGalleryImages();
+};
+
+async function loadGalleryImages() {
+    const grid = document.getElementById('galleryGrid');
+    const counter = document.getElementById('galleryCounter');
+    if (!grid) return;
+
+    try {
+        const token = window.authClient ? window.authClient.getToken() : null;
+        const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+        const res = await fetch('/api/uploads?type=images&limit=100', { headers });
+
+        if (!res.ok) {
+            grid.innerHTML = `<div class="gallery-empty" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>${t('gallery.no_images')}</p></div>`;
+            return;
+        }
+
+        const data = await res.json();
+
+        if (!data.uploads || data.uploads.length === 0) {
+            grid.innerHTML = `<div class="gallery-empty" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>${t('gallery.no_images')}</p></div>`;
+            if (counter) counter.textContent = '';
+            return;
+        }
+
+        if (counter) counter.textContent = data.uploads.length + ' ' + t('gallery.photos');
+
+        grid.innerHTML = data.uploads.map(img => `
+            <div class="gallery-item" onclick="openLightbox('${img.url}', '${(img.original_name || '').replace(/'/g, "\\'")}')">
+                <img src="${img.url}" alt="${img.original_name || ''}" loading="lazy">
+                <div class="gallery-item-overlay">
+                    <div class="gallery-item-name">${img.original_name || 'Imagen'}</div>
+                    <div class="gallery-item-date">${new Date(img.created_at).toLocaleDateString()}</div>
+                </div>
+            </div>
+        `).join('');
+    } catch {
+        grid.innerHTML = `<div class="gallery-empty" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>${t('gallery.no_images')}</p></div>`;
+    }
+}
+
+window.handleGalleryUpload = async function(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+
+    if (!window.authClient || !window.authClient.getToken()) {
+        window.app.showNotification(t('gallery.login_required'), 'error');
+        return;
+    }
+
+    const progress = document.getElementById('galleryProgress');
+    const fill = document.getElementById('galleryProgressFill');
+    const status = document.getElementById('galleryStatus');
+
+    if (progress) progress.style.display = 'block';
+    let uploaded = 0;
+
+    for (const file of files) {
+        if (status) status.textContent = t('upload.uploading') + ' ' + file.name + '...';
+        if (fill) fill.style.width = ((uploaded / files.length) * 100) + '%';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await fetch('/api/uploads/images', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + window.authClient.getToken() },
+                body: formData
+            });
+            uploaded++;
+        } catch {}
+    }
+
+    if (fill) fill.style.width = '100%';
+    if (status) {
+        status.textContent = uploaded + '/' + files.length + ' ' + t('gallery.uploaded_ok');
+        status.style.color = 'var(--green-mariachi)';
+    }
+
+    input.value = '';
+
+    // Reload gallery
+    setTimeout(() => { loadGalleryImages(); }, 1000);
+};
+
+window.openLightbox = function(url, name) {
+    const lb = document.createElement('div');
+    lb.className = 'gallery-lightbox';
+    lb.onclick = () => lb.remove();
+    lb.innerHTML = `
+        <span class="gallery-lightbox-close">&times;</span>
+        <img src="${url}" alt="${name}">
+    `;
+    document.body.appendChild(lb);
+};
+
 window.loadEstilosContent = function() {
     const container = document.getElementById('estilosContent');
     container.innerHTML = `
