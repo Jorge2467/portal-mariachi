@@ -50,6 +50,16 @@ async function initDatabase() {
         const { cleanExpiredSessions } = require('./api/auth');
         setInterval(cleanExpiredSessions, 60 * 60 * 1000);
 
+        // Auto-seed if songs table is empty
+        const songCount = await pool.query('SELECT COUNT(*) FROM songs');
+        if (parseInt(songCount.rows[0].count) === 0) {
+            console.log('Empty database detected — running seed...');
+            const seedPath = path.join(__dirname, 'db', 'seed.js');
+            if (fs.existsSync(seedPath)) {
+                require(seedPath);
+            }
+        }
+
         return true;
     } catch (err) {
         console.error('❌ Database init error:', err.message);
@@ -70,6 +80,18 @@ app.use('/api/auth', (req, res, next) => {
     const { router } = require('./api/auth');
     router(req, res, next);
 });
+
+// Content routes (songs, collections, mariachis, blog, courses)
+app.use('/api/content', (req, res, next) => {
+    if (!dbReady) return res.status(503).json({ error: 'Database not available' });
+    next();
+}, require('./api/content'));
+
+// Blog AI generator
+app.use('/api/blog-ai', (req, res, next) => {
+    if (!dbReady) return res.status(503).json({ error: 'Database not available' });
+    next();
+}, require('./api/blog-ai'));
 
 // ===================================
 // CHATBOT API - Anthropic Claude

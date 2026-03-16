@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "db:init": "node db/init.js"
+    "db:init": "node db/init.js",
+    "db:seed": "node db/seed.js"
   },
   "author": {
     "name": "Jorge Luis Garcia Mendoza"
