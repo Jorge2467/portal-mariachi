@@ -26,6 +26,11 @@ const translations = {
         'login.submit': 'Entrar',
         'login.register_prompt': '¿No tienes cuenta?',
         'login.register': 'Regístrate aquí',
+        'auth.register_title': 'Crear Cuenta',
+        'auth.name': 'Nombre',
+        'auth.register_btn': 'Crear Cuenta',
+        'auth.welcome': '¡Bienvenido',
+        'auth.registered': '¡Cuenta creada!',
 
         // Home / Hero
         'home.badge': 'Canción del Día',
@@ -185,6 +190,11 @@ const translations = {
         'login.submit': 'Sign In',
         'login.register_prompt': "Don't have an account?",
         'login.register': 'Register here',
+        'auth.register_title': 'Create Account',
+        'auth.name': 'Name',
+        'auth.register_btn': 'Create Account',
+        'auth.welcome': 'Welcome',
+        'auth.registered': 'Account created!',
 
         // Home / Hero
         'home.badge': 'Song of the Day',
@@ -344,6 +354,11 @@ const translations = {
         'login.submit': 'Entrar',
         'login.register_prompt': 'Não tens conta?',
         'login.register': 'Regista-te aqui',
+        'auth.register_title': 'Criar Conta',
+        'auth.name': 'Nome',
+        'auth.register_btn': 'Criar Conta',
+        'auth.welcome': 'Bem-vindo',
+        'auth.registered': 'Conta criada!',
 
         // Home / Hero
         'home.badge': 'Canção do Dia',

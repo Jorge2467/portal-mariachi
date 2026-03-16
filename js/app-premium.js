@@ -65,11 +65,13 @@ class MariachiAppPremium {
         const loginModal = document.getElementById('loginModal');
         const modalClose = loginModal ? loginModal.querySelector('.modal-close') : null;
         const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
         const logoutBtn = document.getElementById('logoutBtn');
         
         // Open login modal
         if (loginBtn && loginModal) {
             loginBtn.addEventListener('click', () => {
+                this.showAuthTab('login');
                 loginModal.classList.add('active');
             });
         }
@@ -90,13 +92,24 @@ class MariachiAppPremium {
             });
         }
         
-        // Handle login via authUtil
+        // Handle login
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
                 this.login(email, password);
+            });
+        }
+        
+        // Handle register
+        if (registerForm) {
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                this.register(name, email, password);
             });
         }
         
@@ -108,35 +121,98 @@ class MariachiAppPremium {
             });
         }
         
+        // Tab switching
+        document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.showAuthTab(btn.dataset.tab);
+            });
+        });
+        
+        // Register link in login form
+        const registerLink = document.querySelector('a[href="#register"]');
+        if (registerLink) {
+            registerLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showAuthTab('register');
+            });
+        }
+        
         // Restore existing session
-        if (window.authUtil && window.authUtil.isAuthenticated()) {
-            this.user = window.authUtil.getUser();
+        if (window.authClient && window.authClient.isAuthenticated()) {
+            this.user = window.authClient.getUser();
             this.updateUserUI();
         }
     }
     
-    login(email, password) {
-        if (!window.authUtil) {
+    showAuthTab(tab) {
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        
+        document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+        
+        if (loginTab) loginTab.style.display = tab === 'login' ? 'block' : 'none';
+        if (registerTab) registerTab.style.display = tab === 'register' ? 'block' : 'none';
+    }
+    
+    async login(email, password) {
+        if (!window.authClient) {
             this.showNotification('Error de sistema', 'error');
             return;
         }
         
-        const user = window.authUtil.authenticate(email, password);
+        const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
         
-        if (user) {
-            this.user = user;
-            this.updateUserUI();
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('loginForm').reset();
-            this.showNotification('¡Bienvenido ' + user.name + '!', 'success');
-        } else {
-            this.showNotification('Credenciales incorrectas', 'error');
+        const result = await window.authClient.login(email, password);
+        
+        if (submitBtn) submitBtn.disabled = false;
+        
+        if (result.error) {
+            this.showNotification(result.error, 'error');
+            return;
         }
+        
+        this.user = result.user;
+        this.updateUserUI();
+        document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('loginForm').reset();
+        
+        const t = window.i18n ? window.i18n.t.bind(window.i18n) : (k) => k;
+        this.showNotification(t('auth.welcome') + ' ' + result.user.name + '!', 'success');
     }
     
-    logout() {
-        if (window.authUtil) {
-            window.authUtil.logout();
+    async register(name, email, password) {
+        if (!window.authClient) {
+            this.showNotification('Error de sistema', 'error');
+            return;
+        }
+        
+        const submitBtn = document.querySelector('#registerForm button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        
+        const result = await window.authClient.register(email, password, name);
+        
+        if (submitBtn) submitBtn.disabled = false;
+        
+        if (result.error) {
+            this.showNotification(result.error, 'error');
+            return;
+        }
+        
+        this.user = result.user;
+        this.updateUserUI();
+        document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('registerForm').reset();
+        
+        const t = window.i18n ? window.i18n.t.bind(window.i18n) : (k) => k;
+        this.showNotification(t('auth.registered') + ' ' + result.user.name + '!', 'success');
+    }
+    
+    async logout() {
+        if (window.authClient) {
+            await window.authClient.logout();
         }
         this.user = null;
         this.updateUserUI();

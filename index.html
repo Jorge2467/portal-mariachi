@@ -177,25 +177,54 @@
         </div>
     </footer>
     
-    <!-- Modals -->
+    <!-- Auth Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <button class="modal-close">&times;</button>
-            <h2 data-i18n="login.title">Iniciar Sesión</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label data-i18n="login.email">Correo Electrónico</label>
-                    <input type="email" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                    <label data-i18n="login.password">Contraseña</label>
-                    <input type="password" id="loginPassword" required>
-                </div>
-                <button type="submit" class="btn-primary btn-block" data-i18n="login.submit">Entrar</button>
-            </form>
-            <p class="modal-footer-text">
-                <span data-i18n="login.register_prompt">¿No tienes cuenta?</span> <a href="#register" data-i18n="login.register">Regístrate aquí</a>
-            </p>
+            
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" data-tab="login" data-i18n="login.title">Iniciar Sesión</button>
+                <button class="auth-tab-btn" data-tab="register" data-i18n="auth.register_title">Crear Cuenta</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginTab">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label data-i18n="login.email">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.password">Contraseña</label>
+                        <input type="password" id="loginPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" data-i18n="login.submit">Entrar</button>
+                </form>
+                <p class="modal-footer-text">
+                    <span data-i18n="login.register_prompt">¿No tienes cuenta?</span> 
+                    <a href="#register" data-i18n="login.register">Regístrate aquí</a>
+                </p>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerTab" style="display: none;">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label data-i18n="auth.name">Nombre</label>
+                        <input type="text" id="registerName" required minlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.email">Correo Electrónico</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.password">Contraseña</label>
+                        <input type="password" id="registerPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" data-i18n="auth.register_btn">Crear Cuenta</button>
+                </form>
+            </div>
         </div>
     </div>
     
