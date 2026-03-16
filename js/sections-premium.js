@@ -726,7 +726,141 @@ window.loadPartiturasContent = function() {
 };
 
 window.loadEstilosContent = function() {
-    document.getElementById('estilosContent').innerHTML = `<div class="section-premium"><h1 class="section-title">📚 ${t('estilos.title')}</h1></div>`;
+    const container = document.getElementById('estilosContent');
+    container.innerHTML = `
+        <style>
+            .estilos-section { max-width: var(--container-max); margin: 0 auto; padding: 2rem; }
+            .estilos-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+            .estilos-header h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--gold-primary); }
+            .estilos-header p { color: var(--gray-400); font-size: 1.1rem; margin-top: 0.5rem; }
+
+            .estilos-timeline { position: relative; padding-left: 2.5rem; }
+            .estilos-timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--gold-primary), rgba(255,184,0,0.1)); border-radius: 3px; }
+
+            .estilo-item { position: relative; margin-bottom: 2.5rem; }
+            .estilo-item::before { content: ''; position: absolute; left: -2.5rem; top: 1.5rem; width: 14px; height: 14px; background: var(--gold-primary); border-radius: 50%; border: 3px solid var(--gray-900); z-index: 1; }
+
+            .estilo-card { background: var(--gray-900); border: 1px solid rgba(255,184,0,0.12); border-radius: 16px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+            .estilo-card:hover { border-color: var(--gold-primary); box-shadow: 0 10px 40px rgba(255,184,0,0.1); }
+            .estilo-card.open .estilo-detail { display: block; }
+
+            .estilo-card-head { display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem 2rem; }
+            .estilo-icon { font-size: 2.5rem; flex-shrink: 0; }
+            .estilo-info { flex: 1; }
+            .estilo-name { font-family: var(--font-display); font-size: 1.5rem; color: var(--white); margin-bottom: 0.25rem; }
+            .estilo-meta { display: flex; gap: 1rem; flex-wrap: wrap; }
+            .estilo-tag { font-size: 0.75rem; padding: 0.2rem 0.6rem; background: rgba(255,184,0,0.1); color: var(--gold-primary); border-radius: 6px; font-weight: 600; }
+            .estilo-toggle { font-size: 1.2rem; color: var(--gray-400); transition: transform 0.3s; flex-shrink: 0; }
+            .estilo-card.open .estilo-toggle { transform: rotate(180deg); }
+
+            .estilo-summary { padding: 0 2rem 1.5rem; color: var(--gray-400); font-size: 0.95rem; line-height: 1.6; }
+
+            .estilo-detail { display: none; padding: 0 2rem 2rem; border-top: 1px solid rgba(255,255,255,0.06); }
+            .estilo-detail-inner { padding-top: 1.5rem; }
+            .estilo-detail h4 { color: var(--gold-primary); font-size: 1.1rem; margin: 1.2rem 0 0.5rem; }
+            .estilo-detail p { color: var(--gray-300); font-size: 0.95rem; line-height: 1.7; margin-bottom: 0.75rem; }
+            .estilo-detail ul { margin: 0.5rem 0 1rem 1.2rem; color: var(--gray-300); }
+            .estilo-detail li { margin-bottom: 0.4rem; font-size: 0.95rem; line-height: 1.5; }
+
+            .estilo-songs { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem; }
+            .estilo-song-chip { padding: 0.4rem 1rem; background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.15); border-radius: 20px; color: var(--gray-300); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; }
+            .estilo-song-chip i { color: var(--gold-primary); font-size: 0.75rem; }
+
+            .estilos-counter { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; }
+            .estilos-counter-item { text-align: center; }
+            .estilos-counter-num { font-size: 2.5rem; font-weight: 800; color: var(--gold-primary); font-family: var(--font-display); }
+            .estilos-counter-label { font-size: 0.85rem; color: var(--gray-400); }
+
+            @media (max-width: 768px) {
+                .estilo-card-head { padding: 1.2rem 1.5rem; gap: 1rem; }
+                .estilo-name { font-size: 1.2rem; }
+                .estilos-timeline { padding-left: 2rem; }
+            }
+        </style>
+
+        <div class="estilos-section">
+            <div class="estilos-header">
+                <h1>${t('estilos.page_title')}</h1>
+                <p>${t('estilos.page_subtitle')}</p>
+            </div>
+
+            <div class="estilos-counter">
+                <div class="estilos-counter-item">
+                    <div class="estilos-counter-num">10</div>
+                    <div class="estilos-counter-label">${t('estilos.genres')}</div>
+                </div>
+                <div class="estilos-counter-item">
+                    <div class="estilos-counter-num">200+</div>
+                    <div class="estilos-counter-label">${t('estilos.years')}</div>
+                </div>
+                <div class="estilos-counter-item">
+                    <div class="estilos-counter-num" id="estilosSongCount">...</div>
+                    <div class="estilos-counter-label">${t('estilos.songs_db')}</div>
+                </div>
+            </div>
+
+            <div class="estilos-timeline" id="estilosTimeline"></div>
+        </div>
+    `;
+
+    const estilos = [
+        { icon: '🎵', name: 'Son Jalisciense', period: 'Siglo XVIII', compas: '6/8 - 3/4', origin: 'Jalisco', desc: 'El género fundacional del mariachi. Ritmos vivos con zapateo, coplas cantadas y secciones instrumentales virtuosas donde los músicos demuestran su habilidad.', detail: '<h4>Características</h4><p>Compás alternante entre 6/8 y 3/4 (sesquiáltera). Estructura de copla-estribillo con interludios instrumentales. El zapateo sobre tarima es parte esencial de la interpretación.</p><h4>Subgéneros</h4><ul><li><strong>Son abajeño</strong> — De la región de Jalisco y Colima</li><li><strong>Son calentano</strong> — De Tierra Caliente, Michoacán</li><li><strong>Son planeco</strong> — De la meseta purépecha</li></ul>', songs: ['El Son de la Negra', 'El Cascabel', 'La Negra', 'Guadalajara'] },
+        { icon: '🤠', name: 'Ranchera', period: '1910-1920', compas: '2/4 - 3/4 - 4/4', origin: 'Nacional', desc: 'El género vocal por excelencia del mariachi. Expresa sentimientos profundos de amor, desamor, orgullo patrio y nostalgia con una intensidad emocional única.', detail: '<h4>Tipos de Ranchera</h4><ul><li><strong>Ranchera lenta</strong> — Baladas de amor y despedida, en 4/4</li><li><strong>Ranchera rápida</strong> — Canciones alegres y festivas, en 2/4</li><li><strong>Ranchera bravía</strong> — Temas de valentía, orgullo, en 3/4</li><li><strong>Ranchera vals</strong> — En compás de 3/4, romántica</li></ul><h4>El Rey de la Ranchera</h4><p>José Alfredo Jiménez compuso más de 1,000 rancheras y es considerado el máximo exponente del género. Sus temas son interpretados por mariachis en todo el mundo.</p>', songs: ['El Rey', 'Volver Volver', 'Ella', 'Paloma Negra', 'Cielo Rojo'] },
+        { icon: '💘', name: 'Bolero Ranchero', period: '1940-1950', compas: '4/4', origin: 'Cuba → México', desc: 'Fusión del bolero cubano con la instrumentación mariachi. Baladas románticas profundas que combinan la elegancia del bolero con la pasión mexicana.', detail: '<h4>Fusión Cultural</h4><p>El bolero llegó de Cuba a México en los años 1930-1940 y fue rápidamente adoptado por los mariachis. La fusión creó un género único que combina la estructura armónica del bolero con la expresividad del mariachi.</p><h4>Máximos Exponentes</h4><ul><li><strong>Pedro Infante</strong> — El ídolo del pueblo</li><li><strong>Javier Solís</strong> — "El Rey del Bolero Ranchero"</li><li><strong>Luis Miguel</strong> — Modernizador del género</li></ul>', songs: ['Sabor a Mí', 'La Bikina', 'Si Nos Dejan', 'Solamente Una Vez'] },
+        { icon: '💃', name: 'Huapango', period: 'Siglo XVIII', compas: '6/8', origin: 'Huasteca', desc: 'Género virtuoso de la región Huasteca con uso del falsete, ritmos complejos y zapateado sobre tarima de madera. Requiere gran habilidad técnica.', detail: '<h4>La Tradición Huasteca</h4><p>El huapango nace en la Huasteca (Veracruz, San Luis Potosí, Tamaulipas, Hidalgo). Se distingue por el uso del falsete, improvisación poética (versada) y el zapateado virtuoso sobre tarima.</p><h4>En la Orquesta</h4><p>El "Huapango de Moncayo" (1941) es la obra sinfónica mexicana más famosa, basada en tres sones huastecos: "El Siquisirí", "El Balajú" y "El Gavilancito".</p>', songs: ['El Huapango de Moncayo', 'La Malagueña', 'La Bamba'] },
+        { icon: '📯', name: 'Corrido', period: '1910', compas: '3/4 - 2/4', origin: 'Nacional', desc: 'Narrativa musical mexicana que cuenta historias de héroes, batallas, eventos históricos y la vida del pueblo. El "periodismo musical" de México.', detail: '<h4>El Periodismo Musical</h4><p>Durante la Revolución Mexicana (1910-1920), el corrido fue el principal medio de comunicación popular. Narraba batallas, hazañas de héroes como Pancho Villa y Emiliano Zapata, y crónicas del pueblo.</p><h4>Estructura</h4><ul><li>Saludo o presentación del tema</li><li>Narración cronológica de eventos</li><li>Moraleja o despedida</li></ul>', songs: ['La Cucaracha', 'Caminos de Guanajuato'] },
+        { icon: '🎼', name: 'Canción Mexicana', period: '1900+', compas: '4/4 - 3/4', origin: 'Nacional', desc: 'Género amplio que engloba canciones populares mexicanas que no encajan en otros estilos específicos. Incluye canciones patrióticas, infantiles y festivas.', detail: '<h4>Versatilidad</h4><p>La canción mexicana es un término paraguas para composiciones que mezclan elementos de varios géneros. Incluye canciones de cuna, patrióticas, infantiles y de tema libre.</p><h4>Compositores Notables</h4><p>Agustín Lara, Gonzalo Curiel, María Grever y Consuelo Velázquez crearon canciones mexicanas que trascendieron fronteras.</p>', songs: ['Las Mañanitas', 'México Lindo y Querido', 'Cielito Lindo'] },
+        { icon: '🎻', name: 'Vals Mexicano', period: '1850+', compas: '3/4', origin: 'Europa → México', desc: 'Adaptación mexicana del vals europeo. Más lento y sentimental que el vals vienés, con letras poéticas sobre amor y nostalgia.', detail: '<h4>El Vals en México</h4><p>Llegó a México con la influencia francesa en el siglo XIX, especialmente durante el Imperio de Maximiliano. Los compositores mexicanos lo adaptaron con letras en español y un tempo más pausado.</p><h4>Uso en el Mariachi</h4><p>El vals es esencial en quinceañeras (vals de la festejada) y bodas (vals de los novios). También se toca en serenatas románticas.</p>', songs: ['Sobre las Olas', 'Alejandra'] },
+        { icon: '🪗', name: 'Polka Norteña', period: '1860+', compas: '2/4', origin: 'Centroeuropa → Norte de México', desc: 'Ritmo bailable de origen europeo adoptado en el norte de México. Aunque más asociada al norteño, algunos mariachis la incluyen en su repertorio.', detail: '<h4>Origen</h4><p>La polka llegó a México con los inmigrantes centroeuropeos (checos, polacos, alemanes) en el siglo XIX. Se arraigó especialmente en los estados del norte: Nuevo León, Tamaulipas, Chihuahua.</p><h4>En el Mariachi</h4><p>Aunque la polka es más típica del conjunto norteño, mariachis versátiles la incluyen para ampliar su repertorio en fiestas y eventos.</p>', songs: [] },
+        { icon: '🌺', name: 'Jarabe', period: 'Siglo XVIII', compas: 'Variable', origin: 'Jalisco', desc: 'Suite de sones bailables que se interpretan sin interrupción. El Jarabe Tapatío es considerado el baile nacional de México.', detail: '<h4>El Baile Nacional</h4><p>El jarabe es una secuencia de sones que se bailan de forma continua. El más famoso es el Jarabe Tapatío, que representa el cortejo entre un charro y una china poblana.</p><h4>Historia</h4><p>Fue prohibido durante la Colonia por considerarse "inmoral" por las autoridades españolas. Tras la Independencia se convirtió en símbolo de identidad nacional.</p>', songs: ['Jarabe Tapatío'] },
+        { icon: '🎭', name: 'Balada Ranchera', period: '1970+', compas: '4/4', origin: 'Nacional', desc: 'Evolución moderna de la ranchera que incorpora elementos del pop y la balada. Juan Gabriel fue su máximo innovador.', detail: '<h4>La Modernización</h4><p>A partir de los años 1970, compositores como Juan Gabriel y Marco Antonio Solís fusionaron la ranchera con la balada pop, creando un género híbrido que conquistó nuevas audiencias.</p><h4>Juan Gabriel</h4><p>El "Divo de Juárez" revolucionó la música mexicana con composiciones que combinaban la emotividad de la ranchera con arreglos modernos. "Amor Eterno" es considerada su obra maestra.</p>', songs: ['Amor Eterno', 'La Negra Noche'] },
+    ];
+
+    const timeline = document.getElementById('estilosTimeline');
+    timeline.innerHTML = estilos.map((e, i) => `
+        <div class="estilo-item">
+            <div class="estilo-card" id="estilo-${i}" onclick="toggleEstilo(${i})">
+                <div class="estilo-card-head">
+                    <div class="estilo-icon">${e.icon}</div>
+                    <div class="estilo-info">
+                        <div class="estilo-name">${e.name}</div>
+                        <div class="estilo-meta">
+                            <span class="estilo-tag">${e.period}</span>
+                            <span class="estilo-tag">${e.compas}</span>
+                            <span class="estilo-tag">${e.origin}</span>
+                        </div>
+                    </div>
+                    <div class="estilo-toggle"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="estilo-summary">${e.desc}</div>
+                <div class="estilo-detail">
+                    <div class="estilo-detail-inner">
+                        ${e.detail}
+                        ${e.songs.length > 0 ? `
+                            <h4>${t('estilos.featured_songs')}</h4>
+                            <div class="estilo-songs">
+                                ${e.songs.map(s => `<span class="estilo-song-chip"><i class="fas fa-music"></i> ${s}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    // Load real song count
+    if (window.API) {
+        API.stats().then(data => {
+            const el = document.getElementById('estilosSongCount');
+            if (el && data) el.textContent = data.songs || 0;
+        });
+    }
+};
+
+window.toggleEstilo = function(idx) {
+    const card = document.getElementById('estilo-' + idx);
+    if (!card) return;
+    card.classList.toggle('open');
 };
 
 window.loadWikiContent = function() {
