@@ -785,12 +785,12 @@ window.loadWikiContent = function() {
             </div>
 
             <div class="wiki-categories">
-                <button class="wiki-cat-btn active" onclick="filterWikiCat('all')">${t('wiki.cat_all')}</button>
-                <button class="wiki-cat-btn" onclick="filterWikiCat('instrumentos')">🎻 ${t('wiki.cat_instruments')}</button>
-                <button class="wiki-cat-btn" onclick="filterWikiCat('historia')">📜 ${t('wiki.cat_history')}</button>
-                <button class="wiki-cat-btn" onclick="filterWikiCat('estilos')">🎵 ${t('wiki.cat_styles')}</button>
-                <button class="wiki-cat-btn" onclick="filterWikiCat('cultura')">🇲🇽 ${t('wiki.cat_culture')}</button>
-                <button class="wiki-cat-btn" onclick="filterWikiCat('tecnica')">🎓 ${t('wiki.cat_technique')}</button>
+                <button class="wiki-cat-btn active" onclick="filterWikiCat('all',this)">${t('wiki.cat_all')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('instrumentos',this)">🎻 ${t('wiki.cat_instruments')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('historia',this)">📜 ${t('wiki.cat_history')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('estilos',this)">🎵 ${t('wiki.cat_styles')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('cultura',this)">🇲🇽 ${t('wiki.cat_culture')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('tecnica',this)">🎓 ${t('wiki.cat_technique')}</button>
             </div>
 
             <div class="wiki-grid" id="wikiGrid"></div>
@@ -871,9 +871,9 @@ window.closeWikiArticle = function() {
     renderWikiCards(wikiArticles);
 };
 
-window.filterWikiCat = function(cat) {
+window.filterWikiCat = function(cat, el) {
     document.querySelectorAll('.wiki-cat-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    if (el) el.classList.add('active');
 
     if (cat === 'all') {
         renderWikiCards(wikiArticles);
