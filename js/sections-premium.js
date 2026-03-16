@@ -573,8 +573,358 @@ window.loadWikiContent = function() {
 };
 
 window.loadChatbotContent = function() {
-    document.getElementById('chatbotContent').innerHTML = `<div class="section-premium"><h1 class="section-title">🤖 ${t('chatbot.title')}</h1></div>`;
+    const container = document.getElementById('chatbotContent');
+    const lang = window.i18n ? window.i18n.currentLang : 'es';
+    container.innerHTML = `
+        <style>
+            .chat-section {
+                padding: 2rem;
+                max-width: 900px;
+                margin: 0 auto;
+                min-height: calc(100vh - var(--nav-height) - 100px);
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .chat-header {
+                text-align: center;
+                margin-bottom: 2rem;
+                padding-top: 2rem;
+            }
+            
+            .chat-header h1 {
+                font-family: var(--font-display);
+                font-size: clamp(2rem, 4vw, 3rem);
+                color: var(--gold-primary);
+                margin-bottom: 0.5rem;
+            }
+            
+            .chat-header p {
+                color: var(--gray-400);
+                font-size: 1.1rem;
+            }
+            
+            .chat-window {
+                flex: 1;
+                background: var(--gray-900);
+                border: 1px solid rgba(255,184,0,0.2);
+                border-radius: 16px;
+                display: flex;
+                flex-direction: column;
+                min-height: 500px;
+                overflow: hidden;
+            }
+            
+            .chat-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .chat-messages::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .chat-messages::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .chat-messages::-webkit-scrollbar-thumb {
+                background: var(--gray-700);
+                border-radius: 3px;
+            }
+            
+            .chat-msg {
+                max-width: 80%;
+                padding: 1rem 1.5rem;
+                border-radius: 16px;
+                line-height: 1.6;
+                font-size: 0.95rem;
+                animation: chatFadeIn 0.3s ease;
+            }
+            
+            @keyframes chatFadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .chat-msg.bot {
+                background: rgba(255,184,0,0.08);
+                border: 1px solid rgba(255,184,0,0.15);
+                color: var(--gray-200);
+                align-self: flex-start;
+                border-bottom-left-radius: 4px;
+            }
+            
+            .chat-msg.user {
+                background: rgba(255,184,0,0.15);
+                border: 1px solid rgba(255,184,0,0.3);
+                color: var(--white);
+                align-self: flex-end;
+                border-bottom-right-radius: 4px;
+            }
+            
+            .chat-msg.bot .msg-label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--gold-primary);
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+            
+            .chat-msg.typing {
+                padding: 1rem 1.5rem;
+            }
+            
+            .typing-dots {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            
+            .typing-dots span {
+                width: 8px;
+                height: 8px;
+                background: var(--gold-primary);
+                border-radius: 50%;
+                animation: typingBounce 1.4s infinite ease-in-out;
+            }
+            
+            .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+            .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+            
+            @keyframes typingBounce {
+                0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+                40% { transform: scale(1); opacity: 1; }
+            }
+            
+            .chat-input-area {
+                display: flex;
+                gap: 1rem;
+                padding: 1.5rem;
+                border-top: 1px solid rgba(255,184,0,0.15);
+                background: rgba(15,15,15,0.5);
+            }
+            
+            .chat-input {
+                flex: 1;
+                padding: 1rem 1.5rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,184,0,0.2);
+                color: var(--white);
+                border-radius: 12px;
+                font-size: 1rem;
+                font-family: var(--font-primary);
+                outline: none;
+                transition: border-color 0.2s;
+            }
+            
+            .chat-input:focus {
+                border-color: var(--gold-primary);
+            }
+            
+            .chat-input::placeholder {
+                color: var(--gray-500);
+            }
+            
+            .chat-send-btn {
+                padding: 1rem 2rem;
+                background: var(--gold-primary);
+                color: var(--black);
+                border: none;
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .chat-send-btn:hover {
+                background: var(--gold-light);
+                transform: translateY(-1px);
+            }
+            
+            .chat-send-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+            }
+            
+            .chat-suggestions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                padding: 1rem 2rem 0.5rem;
+            }
+            
+            .chat-suggestion {
+                padding: 0.5rem 1rem;
+                background: rgba(255,184,0,0.08);
+                border: 1px solid rgba(255,184,0,0.2);
+                color: var(--gold-primary);
+                border-radius: 20px;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            
+            .chat-suggestion:hover {
+                background: rgba(255,184,0,0.15);
+                border-color: var(--gold-primary);
+            }
+
+            .chat-error {
+                color: var(--red-mariachi);
+                font-size: 0.85rem;
+                padding: 0.75rem 1rem;
+                background: rgba(220,38,38,0.1);
+                border-radius: 8px;
+                text-align: center;
+            }
+            
+            @media (max-width: 768px) {
+                .chat-section { padding: 1rem; }
+                .chat-messages { padding: 1rem; }
+                .chat-msg { max-width: 90%; }
+                .chat-input-area { padding: 1rem; }
+                .chat-send-btn span { display: none; }
+            }
+        </style>
+        
+        <div class="chat-section">
+            <div class="chat-header">
+                <h1>🤖 ${t('chatbot.ui_title')}</h1>
+                <p>${t('chatbot.ui_subtitle')}</p>
+            </div>
+            
+            <div class="chat-window">
+                <div class="chat-suggestions" id="chatSuggestions">
+                    <button class="chat-suggestion" onclick="chatSendSuggestion('${t('chatbot.q1')}')">${t('chatbot.q1')}</button>
+                    <button class="chat-suggestion" onclick="chatSendSuggestion('${t('chatbot.q2')}')">${t('chatbot.q2')}</button>
+                    <button class="chat-suggestion" onclick="chatSendSuggestion('${t('chatbot.q3')}')">${t('chatbot.q3')}</button>
+                    <button class="chat-suggestion" onclick="chatSendSuggestion('${t('chatbot.q4')}')">${t('chatbot.q4')}</button>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-msg bot">
+                        <span class="msg-label">🎺 Mariachi Bot</span>
+                        ${t('chatbot.welcome')}
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chatInput" 
+                           placeholder="${t('chatbot.placeholder')}" 
+                           maxlength="2000"
+                           onkeydown="if(event.key==='Enter') chatSend()">
+                    <button class="chat-send-btn" id="chatSendBtn" onclick="chatSend()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>${t('chatbot.send')}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 };
+
+// Chat state
+window._chatHistory = [];
+
+window.chatSendSuggestion = function(text) {
+    document.getElementById('chatInput').value = text;
+    const suggestions = document.getElementById('chatSuggestions');
+    if (suggestions) suggestions.style.display = 'none';
+    chatSend();
+};
+
+window.chatSend = async function() {
+    const input = document.getElementById('chatInput');
+    const btn = document.getElementById('chatSendBtn');
+    const messages = document.getElementById('chatMessages');
+    const suggestions = document.getElementById('chatSuggestions');
+    const msg = input.value.trim();
+    
+    if (!msg || btn.disabled) return;
+    
+    // Hide suggestions after first message
+    if (suggestions) suggestions.style.display = 'none';
+    
+    // Add user message
+    messages.innerHTML += `<div class="chat-msg user">${escapeHtml(msg)}</div>`;
+    input.value = '';
+    btn.disabled = true;
+    
+    // Add typing indicator
+    messages.innerHTML += `<div class="chat-msg bot typing" id="typingIndicator">
+        <span class="msg-label">🎺 Mariachi Bot</span>
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>`;
+    messages.scrollTop = messages.scrollHeight;
+    
+    // Add to history
+    window._chatHistory.push({ role: 'user', content: msg });
+    
+    try {
+        const lang = window.i18n ? window.i18n.currentLang : 'es';
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message: msg, 
+                lang: lang,
+                history: window._chatHistory.slice(-10)
+            })
+        });
+        
+        // Remove typing indicator
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+        
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || 'Error ' + response.status);
+        }
+        
+        const data = await response.json();
+        const reply = data.reply;
+        
+        // Add to history
+        window._chatHistory.push({ role: 'assistant', content: reply });
+        
+        // Format reply (basic markdown: bold, newlines)
+        const formatted = escapeHtml(reply)
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+        
+        messages.innerHTML += `<div class="chat-msg bot">
+            <span class="msg-label">🎺 Mariachi Bot</span>
+            ${formatted}
+        </div>`;
+    } catch (err) {
+        // Remove typing indicator
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+        
+        const errorKey = err.message === 'API key not configured' ? 'chatbot.error_nokey' : 'chatbot.error_general';
+        messages.innerHTML += `<div class="chat-error">${t(errorKey)}</div>`;
+    }
+    
+    btn.disabled = false;
+    messages.scrollTop = messages.scrollHeight;
+    input.focus();
+};
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 window.loadAcademyContent = function() {
     const container = document.getElementById('academyContent');
