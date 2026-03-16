@@ -1295,6 +1295,8 @@ window.loadDirectoryContent = function() {
 
 window.loadBlogContent = function() {
     const container = document.getElementById('blogContent');
+    const isAdmin = window.authClient && window.authClient.isSuperAdmin();
+    
     container.innerHTML = `
         <style>
             .blog-card {
@@ -1384,16 +1386,125 @@ window.loadBlogContent = function() {
             .blog-card:hover .read-more {
                 gap: 1rem;
             }
+
+            .blog-ai-panel {
+                max-width: var(--container-max);
+                margin: 0 auto 3rem;
+                padding: 2.5rem;
+                background: var(--gray-900);
+                border: 2px solid rgba(255,184,0,0.3);
+                border-radius: 16px;
+            }
+
+            .blog-ai-panel h3 {
+                font-family: var(--font-display);
+                font-size: 1.5rem;
+                color: var(--gold-primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .blog-ai-panel p {
+                color: var(--gray-400);
+                margin-bottom: 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            .blog-ai-form {
+                display: flex;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .blog-ai-input {
+                flex: 1;
+                padding: 1rem 1.5rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,184,0,0.2);
+                color: var(--white);
+                border-radius: 12px;
+                font-size: 1rem;
+                font-family: var(--font-primary);
+                outline: none;
+            }
+
+            .blog-ai-input:focus {
+                border-color: var(--gold-primary);
+            }
+
+            .blog-ai-btn {
+                padding: 1rem 2rem;
+                background: var(--gold-primary);
+                color: var(--black);
+                border: none;
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: all 0.2s;
+            }
+
+            .blog-ai-btn:hover { background: var(--gold-light); }
+            .blog-ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+            .blog-ai-status {
+                margin-top: 1rem;
+                padding: 1rem;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                display: none;
+            }
+
+            .blog-ai-status.loading {
+                display: block;
+                background: rgba(255,184,0,0.08);
+                color: var(--gold-primary);
+            }
+
+            .blog-ai-status.success {
+                display: block;
+                background: rgba(5,150,105,0.1);
+                color: var(--green-mariachi);
+            }
+
+            .blog-ai-status.error {
+                display: block;
+                background: rgba(220,38,38,0.1);
+                color: var(--red-mariachi);
+            }
+
+            @media (max-width: 768px) {
+                .blog-ai-form { flex-direction: column; }
+            }
         </style>
         
         <div class="section-premium">
             <div class="section-header">
-                <h1 class="section-title">📝 ${t('blog.title')}</h1>
+                <h1 class="section-title">\u{1F4DD} ${t('blog.title')}</h1>
                 <p class="section-subtitle">${t('blog.subtitle')}</p>
             </div>
             
+            ${isAdmin ? `
+            <div class="blog-ai-panel">
+                <h3>\u{1F916} ${t('blog.ai_title')}</h3>
+                <p>${t('blog.ai_desc')}</p>
+                <div class="blog-ai-form">
+                    <input type="text" class="blog-ai-input" id="blogAiTopic" 
+                           placeholder="${t('blog.ai_placeholder')}" maxlength="500"
+                           onkeydown="if(event.key==='Enter') generateBlogAI()">
+                    <button class="blog-ai-btn" id="blogAiBtn" onclick="generateBlogAI()">
+                        <i class="fas fa-magic"></i> ${t('blog.ai_generate')}
+                    </button>
+                </div>
+                <div class="blog-ai-status" id="blogAiStatus"></div>
+            </div>
+            ` : ''}
+            
             <div class="cards-grid" id="blogGrid">
-                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">Cargando artículos...</div>
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">Cargando...</div>
             </div>
         </div>
     `;
@@ -1404,7 +1515,7 @@ window.loadBlogContent = function() {
             if (!grid || !data || !data.posts) return;
             grid.innerHTML = data.posts.map(post => `
                 <div class="blog-card">
-                    <div class="blog-card-image">${post.icon || '📖'}</div>
+                    <div class="blog-card-image">${post.icon || '\u{1F4D6}'}</div>
                     <div class="blog-card-content">
                         <p class="blog-card-date">${post.published_at ? new Date(post.published_at).toLocaleDateString() : ''}</p>
                         <h3 class="blog-card-title">${post.title}</h3>
@@ -1421,6 +1532,58 @@ window.loadBlogContent = function() {
             `).join('');
         });
     }
+};
+
+// Blog AI Generator function
+window.generateBlogAI = async function() {
+    const input = document.getElementById('blogAiTopic');
+    const btn = document.getElementById('blogAiBtn');
+    const status = document.getElementById('blogAiStatus');
+    const topic = input.value.trim();
+    
+    if (!topic) { input.focus(); return; }
+    if (!window.authClient || !window.authClient.getToken()) {
+        status.className = 'blog-ai-status error';
+        status.textContent = t('blog.ai_error_auth');
+        return;
+    }
+    
+    btn.disabled = true;
+    status.className = 'blog-ai-status loading';
+    status.textContent = t('blog.ai_loading');
+    
+    try {
+        const lang = window.i18n ? window.i18n.currentLang : 'es';
+        const res = await fetch('/api/blog-ai/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + window.authClient.getToken()
+            },
+            body: JSON.stringify({ topic, lang })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.error || 'Error generating article');
+        }
+        
+        status.className = 'blog-ai-status success';
+        status.textContent = t('blog.ai_success') + ' "' + data.post.title + '"';
+        input.value = '';
+        
+        // Reload blog posts to show new article
+        setTimeout(() => {
+            window.app.loadSection('blog');
+        }, 2000);
+        
+    } catch (err) {
+        status.className = 'blog-ai-status error';
+        status.textContent = t('blog.ai_error') + ': ' + err.message;
+    }
+    
+    btn.disabled = false;
 };
 
 window.loadAdminContent = function() {
