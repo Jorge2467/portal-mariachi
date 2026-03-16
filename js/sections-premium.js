@@ -725,8 +725,6 @@ window.loadPartiturasContent = function() {
     }
 };
 
-};
-
 // ===================================
 // VIDEOS SECTION (YouTube Player)
 // ===================================
