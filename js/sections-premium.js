@@ -730,7 +730,166 @@ window.loadEstilosContent = function() {
 };
 
 window.loadWikiContent = function() {
-    document.getElementById('wikiContent').innerHTML = `<div class="section-premium"><h1 class="section-title">📖 ${t('wiki.title')}</h1></div>`;
+    const container = document.getElementById('wikiContent');
+    container.innerHTML = `
+        <style>
+            .wiki-section { max-width: var(--container-max); margin: 0 auto; padding: 2rem; }
+            .wiki-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+            .wiki-header h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--gold-primary); }
+            .wiki-header p { color: var(--gray-400); font-size: 1.1rem; margin-top: 0.5rem; }
+
+            .wiki-categories { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2.5rem; }
+            .wiki-cat-btn { padding: 0.6rem 1.2rem; background: var(--gray-900); border: 1px solid rgba(255,184,0,0.15); color: var(--gray-300); border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+            .wiki-cat-btn:hover { border-color: var(--gold-primary); color: var(--white); }
+            .wiki-cat-btn.active { background: rgba(255,184,0,0.15); border-color: var(--gold-primary); color: var(--gold-primary); }
+
+            .wiki-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+
+            .wiki-card { background: var(--gray-900); border: 1px solid rgba(255,184,0,0.12); border-radius: 16px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+            .wiki-card:hover { border-color: var(--gold-primary); transform: translateY(-4px); box-shadow: 0 15px 40px rgba(255,184,0,0.15); }
+            .wiki-card-icon { height: 140px; background: linear-gradient(135deg, rgba(255,184,0,0.08), rgba(255,184,0,0.02)); display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+            .wiki-card-body { padding: 1.5rem; }
+            .wiki-card-cat { font-size: 0.75rem; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 0.5rem; }
+            .wiki-card-title { font-family: var(--font-display); font-size: 1.3rem; color: var(--white); margin-bottom: 0.75rem; line-height: 1.3; }
+            .wiki-card-text { color: var(--gray-400); font-size: 0.9rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+            .wiki-detail { background: var(--gray-900); border: 1px solid rgba(255,184,0,0.2); border-radius: 16px; padding: 2.5rem; }
+            .wiki-detail-back { cursor: pointer; color: var(--gold-primary); font-size: 0.9rem; margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+            .wiki-detail-back:hover { text-decoration: underline; }
+            .wiki-detail h2 { font-family: var(--font-display); font-size: 2rem; color: var(--gold-primary); margin-bottom: 0.5rem; }
+            .wiki-detail-cat { font-size: 0.85rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+            .wiki-detail-content { color: var(--gray-300); font-size: 1rem; line-height: 1.8; }
+            .wiki-detail-content h3 { color: var(--gold-primary); font-size: 1.3rem; margin: 1.5rem 0 0.75rem; }
+            .wiki-detail-content p { margin-bottom: 1rem; }
+            .wiki-detail-content ul { margin: 0.5rem 0 1rem 1.5rem; }
+            .wiki-detail-content li { margin-bottom: 0.4rem; }
+
+            .wiki-search { display: flex; justify-content: center; margin-bottom: 2rem; }
+            .wiki-search input { width: 100%; max-width: 500px; padding: 0.8rem 1.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,184,0,0.2); color: var(--white); border-radius: 12px; font-size: 1rem; }
+            .wiki-search input:focus { outline: none; border-color: var(--gold-primary); }
+
+            @media (max-width: 768px) {
+                .wiki-grid { grid-template-columns: 1fr; }
+                .wiki-detail { padding: 1.5rem; }
+            }
+        </style>
+
+        <div class="wiki-section">
+            <div class="wiki-header">
+                <h1>${t('wiki.page_title')}</h1>
+                <p>${t('wiki.page_subtitle')}</p>
+            </div>
+
+            <div class="wiki-search">
+                <input type="text" id="wikiSearch" placeholder="${t('wiki.search_placeholder')}" oninput="filterWiki(this.value)">
+            </div>
+
+            <div class="wiki-categories">
+                <button class="wiki-cat-btn active" onclick="filterWikiCat('all')">${t('wiki.cat_all')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('instrumentos')">🎻 ${t('wiki.cat_instruments')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('historia')">📜 ${t('wiki.cat_history')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('estilos')">🎵 ${t('wiki.cat_styles')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('cultura')">🇲🇽 ${t('wiki.cat_culture')}</button>
+                <button class="wiki-cat-btn" onclick="filterWikiCat('tecnica')">🎓 ${t('wiki.cat_technique')}</button>
+            </div>
+
+            <div class="wiki-grid" id="wikiGrid"></div>
+        </div>
+    `;
+
+    renderWikiCards(wikiArticles);
+};
+
+const wikiArticles = [
+    { id: 'violin', icon: '🎻', cat: 'instrumentos', title: 'El Violín Mariachi', text: 'El violín es el alma melódica del mariachi. Un grupo profesional puede incluir entre 4 y 8 violines.', content: '<h3>Historia en el Mariachi</h3><p>El violín fue uno de los primeros instrumentos europeos adoptados por los músicos mexicanos en el siglo XVI. En el mariachi, el violín lleva la melodía principal y crea los floreos característicos del género.</p><h3>Técnica Especial</h3><p>A diferencia del violín clásico, el estilo mariachi emplea un vibrato más amplio, portamentos expresivos y un uso intenso del doble cuerdas. Los violinistas mariachi deben dominar tanto la lectura de partitura como la improvisación.</p><h3>Violinistas Legendarios</h3><ul><li><strong>Gaspar Vargas</strong> — Fundador del Mariachi Vargas de Tecalitlán</li><li><strong>José Reyes</strong> — Innovador del violín mariachi moderno</li><li><strong>Rubén Fuentes</strong> — Compositor y arreglista que elevó el violín a nivel artístico</li></ul>' },
+    { id: 'trompeta', icon: '🎺', cat: 'instrumentos', title: 'La Trompeta Mariachi', text: 'Incorporada en los años 1930, la trompeta le dio al mariachi su sonido brillante y poderoso.', content: '<h3>La Revolución del Sonido</h3><p>Antes de la trompeta, el mariachi era un conjunto de cuerdas. La incorporación de la trompeta en los años 1930 transformó el sonido del género, haciéndolo más potente y festivo. Se atribuye a Emilio Azcárraga esta innovación.</p><h3>Técnica</h3><p>El trompetista mariachi debe dominar el registro agudo, los ataques limpios, el vibrato controlado y las fanfarrias. Las secciones de trompeta típicamente incluyen 2 instrumentos tocando en armonías de terceras.</p><h3>Repertorio Clave</h3><p>Piezas como "El Son de la Negra", "La Bikina" y "Guadalajara" tienen introducciones de trompeta icónicas reconocidas mundialmente.</p>' },
+    { id: 'guitarron', icon: '🎸', cat: 'instrumentos', title: 'El Guitarrón Mexicano', text: 'El bajo del mariachi. Instrumento único mexicano que proporciona la base rítmica y armónica.', content: '<h3>Origen</h3><p>El guitarrón mexicano es un instrumento exclusivo de México, derivado del bajo de cuerda español del siglo XVI. Con sus 6 cuerdas gruesas y su caja de resonancia abombada, produce un sonido profundo y cálido.</p><h3>Función en el Mariachi</h3><p>El guitarrón es el "corazón" rítmico del mariachi. Marca el tiempo, define la armonía y guía al resto del conjunto. Un buen guitarronista es la base de un buen mariachi.</p><h3>Técnica</h3><p>Se toca sin amplificación, usando una técnica de "pulgar y dedos" que produce un sonido percusivo y melódico al mismo tiempo. Las cuerdas se tocan en pares (octavas) para mayor volumen.</p>' },
+    { id: 'vihuela', icon: '🪕', cat: 'instrumentos', title: 'La Vihuela Mexicana', text: 'Guitarra pequeña de fondo convexo que proporciona el rasgueo rítmico característico del mariachi.', content: '<h3>Descripción</h3><p>La vihuela mexicana es una guitarra pequeña de 5 cuerdas con fondo convexo (abombado). No debe confundirse con la vihuela española renacentista. Es un instrumento exclusivo del mariachi.</p><h3>Función</h3><p>Proporciona el ritmo armónico del conjunto mediante patrones de rasgueo llamados "mañanitas", "son" o "bolero" según el estilo. Es junto al guitarrón el motor rítmico del mariachi.</p><h3>Afinación</h3><p>Se afina en la-re-sol-si-mi (de grave a agudo). Su sonido brillante y percusivo es inconfundible en el conjunto mariachi.</p>' },
+    { id: 'guitarra', icon: '🎸', cat: 'instrumentos', title: 'La Guitarra de Golpe', text: 'Guitarra tradicional del mariachi jalisciense, con técnica de rasgueo percusivo.', content: '<h3>Tradición Jalisciense</h3><p>La guitarra de golpe es el instrumento más antiguo del mariachi, originario de Jalisco. A diferencia de la guitarra clásica, se usa exclusivamente para rasgueo percusivo.</p><h3>Diferencia con la Guitarra Clásica</h3><p>Aunque similar en apariencia, la guitarra de golpe tiene un fondo ligeramente convexo y se toca con una técnica de "golpe" que produce un sonido más percusivo y rítmico. En mariachis modernos, a veces se sustituye por la guitarra clásica.</p>' },
+    { id: 'arpa', icon: '🪈', cat: 'instrumentos', title: 'El Arpa Mariachi', text: 'Instrumento original del mariachi que fue desplazado por el guitarrón y las trompetas.', content: '<h3>El Instrumento Perdido</h3><p>El arpa fue parte fundamental del mariachi original desde el siglo XIX. Su función era proporcionar la línea de bajo y la armonía. Con la llegada del guitarrón y la trompeta en el siglo XX, el arpa fue gradualmente eliminada de la formación estándar.</p><h3>Supervivencia</h3><p>Algunos mariachis tradicionales de Jalisco aún incluyen el arpa. El Mariachi Los Camperos de Nati Cano fue pionero en rescatar el arpa en formaciones modernas.</p>' },
+    { id: 'origenes', icon: '📜', cat: 'historia', title: 'Orígenes del Mariachi', text: 'El mariachi nació en el occidente de México entre los siglos XVIII y XIX como música mestiza.', content: '<h3>Raíces</h3><p>El mariachi surgió en la región occidental de México (Jalisco, Nayarit, Colima, Michoacán) como resultado de la fusión entre tradiciones musicales indígenas, españolas y africanas.</p><h3>Debate sobre el Nombre</h3><p>Existen varias teorías sobre el origen de la palabra "mariachi": desde la teoría francesa (mariage = matrimonio) hasta la más aceptada actualmente que proviene de la lengua coca de Jalisco, donde "mariachi" significaba un tipo de tarima de baile.</p><h3>Evolución</h3><p>Los primeros mariachis eran grupos rurales de cuerdas (violines, vihuela, guitarrón) que tocaban sones regionales. No fue hasta el siglo XX que el mariachi se urbanizó y se convirtió en símbolo nacional de México.</p>' },
+    { id: 'cocula', icon: '🏘️', cat: 'historia', title: 'Cocula: Cuna del Mariachi', text: 'El pueblo de Cocula, Jalisco, es reconocido como el lugar de nacimiento del mariachi.', content: '<h3>La Capital del Mariachi</h3><p>Cocula, un pequeño municipio de Jalisco, se proclama como la cuna del mariachi. Su tradición musical data del siglo XVIII, cuando los músicos locales desarrollaron una forma particular de interpretar sones y jarabes.</p><h3>Patrimonio</h3><p>La tradición musical de Cocula fue fundamental para que en 2011, la UNESCO declarara al mariachi como Patrimonio Cultural Inmaterial de la Humanidad. Cada septiembre se celebra el Festival del Mariachi en Cocula.</p>' },
+    { id: 'garibaldi', icon: '🎪', cat: 'historia', title: 'Plaza Garibaldi', text: 'La icónica plaza de la Ciudad de México, epicentro mundial del mariachi desde 1920.', content: '<h3>El Epicentro</h3><p>La Plaza Garibaldi en la Ciudad de México es el punto de reunión más famoso de mariachis en el mundo. Desde la década de 1920, cientos de grupos se congregan aquí cada noche para ofrecer serenatas y música en vivo.</p><h3>Historia</h3><p>Originalmente un mercado, la plaza se transformó en centro musical cuando los mariachis comenzaron a emigrar del campo a la ciudad. Hoy alberga el Museo del Tequila y el Mezcal, bares de tradición como el Tenampa, y es Patrimonio Cultural de la CDMX.</p>' },
+    { id: 'unesco', icon: '🏆', cat: 'historia', title: 'Patrimonio UNESCO', text: 'En 2011, el mariachi fue declarado Patrimonio Cultural Inmaterial de la Humanidad.', content: '<h3>Reconocimiento Mundial</h3><p>El 27 de noviembre de 2011, la UNESCO inscribió al mariachi en la Lista Representativa del Patrimonio Cultural Inmaterial de la Humanidad. La declaración reconoce al mariachi como una expresión artística que transmite valores de respeto, patrimonio y tradición.</p><h3>Criterios</h3><p>La UNESCO destacó que el mariachi es un símbolo de la alegría mexicana, presente en fiestas, serenatas, misas, funerales y celebraciones patrias. También reconoció el sistema de transmisión oral del conocimiento musical entre generaciones.</p>' },
+    { id: 'son', icon: '🎵', cat: 'estilos', title: 'Son Jalisciense', text: 'El género musical fundacional del mariachi, con ritmos vivos y zapateo.', content: '<h3>El Género Original</h3><p>El son jalisciense es el género que dio origen al mariachi. Caracterizado por ritmos vivos en compás de 6/8 o 3/4, melodías alegres y secciones instrumentales virtuosas donde los músicos demuestran su habilidad.</p><h3>Estructura</h3><p>Un son típico alterna entre coplas cantadas y secciones instrumentales. El zapateo (baile percusivo con los pies) es parte integral de la interpretación. Las piezas más famosas incluyen "El Son de la Negra", "El Cascabel" y "La Negra".</p>' },
+    { id: 'ranchera', icon: '🤠', cat: 'estilos', title: 'La Ranchera', text: 'Género vocal por excelencia del mariachi, que expresa sentimientos profundos de amor y desamor.', content: '<h3>El Alma del Mariachi</h3><p>La ranchera es el género vocal más importante del repertorio mariachi. Nacida en el periodo post-revolucionario (1910-1920), expresa los sentimientos más profundos del alma mexicana: amor, desamor, orgullo, nostalgia.</p><h3>Subgéneros</h3><ul><li><strong>Ranchera lenta</strong> — Baladas de amor y despedida</li><li><strong>Ranchera rápida</strong> — Canciones alegres y festivas</li><li><strong>Ranchera bravía</strong> — Temas de valentía y orgullo</li></ul><h3>Grandes Compositores</h3><p>José Alfredo Jiménez es el rey indiscutible de la ranchera, con más de 1,000 composiciones. Otros grandes incluyen a Tomás Méndez, Chucho Monge y Juan Gabriel.</p>' },
+    { id: 'bolero', icon: '💘', cat: 'estilos', title: 'Bolero Ranchero', text: 'Fusión del bolero cubano con el mariachi mexicano, creando baladas románticas únicas.', content: '<h3>Fusión Perfecta</h3><p>El bolero ranchero combina la estructura armónica y romántica del bolero cubano con la instrumentación y expresividad del mariachi. El resultado es un género de baladas profundamente emotivas.</p><h3>Artistas Emblemáticos</h3><p>Pedro Infante, Javier Solís y Luis Miguel son los máximos exponentes del bolero ranchero. Canciones como "Sabor a Mí", "La Bikina" y "Si Nos Dejan" son clásicos inmortales del género.</p>' },
+    { id: 'huapango', icon: '💃', cat: 'estilos', title: 'El Huapango', text: 'Género virtuoso de la Huasteca mexicana con falsete y zapateado sobre tarima.', content: '<h3>Tradición Huasteca</h3><p>El huapango proviene de la región Huasteca (Veracruz, San Luis Potosí, Tamaulipas, Hidalgo). Se caracteriza por el uso del falsete, ritmos complejos y el zapateado sobre tarima de madera.</p><h3>En el Mariachi</h3><p>"El Huapango de Moncayo" es la obra orquestal mexicana más famosa, basada en tres sones huastecos. Piezas como "La Malagueña" combinan elementos del huapango con técnica virtuosa.</p>' },
+    { id: 'corrido', icon: '📯', cat: 'estilos', title: 'El Corrido', text: 'Narrativa musical mexicana que cuenta historias de héroes, batallas y eventos históricos.', content: '<h3>El Periodismo Musical</h3><p>El corrido es la forma narrativa de la música mexicana. Descendiente del romance español, se convirtió en el principal medio de comunicación durante la Revolución Mexicana (1910-1920), narrando batallas, hazañas de héroes y eventos históricos.</p><h3>Estructura</h3><p>Un corrido típico comienza con una presentación del tema, narra los eventos en orden cronológico y termina con una despedida o moraleja. Se canta en compás de 3/4 o 2/4 con melodías simples y directas.</p>' },
+    { id: 'traje', icon: '🇲🇽', cat: 'cultura', title: 'El Traje de Charro', text: 'La indumentaria oficial del mariachi, derivada del traje del jinete mexicano.', content: '<h3>Origen</h3><p>El traje de charro proviene de la indumentaria del jinete mexicano (charro). Fue adoptado por los mariachis en la década de 1930 cuando el cine mexicano popularizó la imagen del charro cantor.</p><h3>Componentes</h3><ul><li><strong>Chaqueta (bolero)</strong> — Corta, con bordados de hilo de plata u oro</li><li><strong>Pantalón</strong> — Ajustado con botonadura lateral de plata</li><li><strong>Moño</strong> — Corbata de moño típica</li><li><strong>Sombrero</strong> — De ala ancha con bordados</li><li><strong>Botas</strong> — De piel con tacón</li><li><strong>Cinturón piteado</strong> — Bordado en pita (fibra de agave)</li></ul>' },
+    { id: 'serenata', icon: '🌙', cat: 'cultura', title: 'La Serenata', text: 'Tradición romántica de llevar música mariachi bajo la ventana del ser amado.', content: '<h3>Tradición Romántica</h3><p>La serenata es una de las tradiciones más emblemáticas de la cultura mexicana. Consiste en contratar un mariachi para llevar música a la persona amada, generalmente de madrugada o al atardecer.</p><h3>Protocolo</h3><p>La serenata tradicional comienza con "Las Mañanitas" si es cumpleaños, o con una canción romántica. El enamorado espera bajo la ventana mientras el mariachi toca. Si la persona amada enciende la luz o sale al balcón, la serenata es aceptada.</p><h3>En la Actualidad</h3><p>Aunque la tradición se ha modernizado, las serenatas siguen siendo populares para cumpleaños, Día de las Madres, aniversarios y declaraciones de amor.</p>' },
+    { id: 'fiestas', icon: '🎉', cat: 'cultura', title: 'El Mariachi en las Fiestas', text: 'El mariachi está presente en todas las celebraciones mexicanas: bodas, quinceañeras, fiestas patrias.', content: '<h3>Omnipresencia Cultural</h3><p>No hay celebración mexicana completa sin mariachi. Desde nacimientos hasta funerales, el mariachi acompaña todos los momentos importantes de la vida:</p><ul><li><strong>Bodas</strong> — El mariachi toca durante la ceremonia y la fiesta</li><li><strong>Quinceañeras</strong> — Vals y canciones para la festejada</li><li><strong>Día de los Muertos</strong> — Serenatas en los cementerios</li><li><strong>Fiestas Patrias</strong> — El Grito de Independencia el 15 de septiembre</li><li><strong>Día de las Madres</strong> — "Las Mañanitas" al amanecer</li><li><strong>Bautizos y comuniones</strong> — Música religiosa y festiva</li></ul>' },
+    { id: 'madeira', icon: '🏝️', cat: 'cultura', title: 'El Mariachi en Madeira', text: 'La presencia del mariachi en la isla portuguesa de Madeira, un puente cultural entre México y Europa.', content: '<h3>México en el Atlántico</h3><p>La isla de Madeira, Portugal, se ha convertido en un punto de difusión del mariachi en Europa. Gracias a la comunidad mexicana y al turismo, el mariachi encontró un hogar inesperado en esta isla del Atlántico.</p><h3>Mariachi México de Madeira</h3><p>Fundado por músicos apasionados por la cultura mexicana, el Mariachi México de Madeira fue el primer grupo establecido en Portugal. Realizan presentaciones en hoteles, festivales y eventos culturales, llevando la alegría del mariachi a turistas y locales.</p><h3>Puente Cultural</h3><p>La presencia del mariachi en Madeira representa la universalidad de esta expresión cultural mexicana, que trasciende fronteras y conecta corazones a través de la música.</p>' },
+    { id: 'afinacion', icon: '🎓', cat: 'tecnica', title: 'Afinación y Tonalidades', text: 'Guía de afinación de los instrumentos del mariachi y tonalidades más usadas.', content: '<h3>Afinaciones</h3><ul><li><strong>Violín</strong> — Sol-Re-La-Mi (estándar)</li><li><strong>Trompeta</strong> — En Si bemol (transpositora)</li><li><strong>Guitarrón</strong> — La-Re-Sol-Do-Mi-La (por pares de octavas)</li><li><strong>Vihuela</strong> — La-Re-Sol-Si-Mi</li><li><strong>Guitarra</strong> — Mi-La-Re-Sol-Si-Mi (estándar)</li></ul><h3>Tonalidades Frecuentes</h3><p>Las tonalidades más usadas en el mariachi son: Re mayor, Sol mayor, La mayor, Do mayor y Mi mayor. Estas tonalidades favorecen la tesitura de los instrumentos y las voces masculinas y femeninas.</p>' },
+    { id: 'formacion', icon: '👥', cat: 'tecnica', title: 'Formación del Conjunto', text: 'La estructura y organización de un mariachi profesional moderno.', content: '<h3>Formación Estándar</h3><p>Un mariachi profesional moderno incluye entre 7 y 15 músicos:</p><ul><li><strong>Violines</strong> — 4 a 8 (sección de cuerdas)</li><li><strong>Trompetas</strong> — 2 a 3</li><li><strong>Guitarrón</strong> — 1 (base rítmica)</li><li><strong>Vihuela</strong> — 1 (armonía rítmica)</li><li><strong>Guitarra</strong> — 1 (opcional)</li><li><strong>Arpa</strong> — 1 (opcional, en mariachis tradicionales)</li></ul><h3>Dirección</h3><p>El director del mariachi suele ser el primer violín o el primer trompeta. Coordina los arreglos, decide el repertorio y marca las entradas durante la interpretación.</p>' },
+];
+
+function renderWikiCards(articles) {
+    const grid = document.getElementById('wikiGrid');
+    if (!grid) return;
+
+    grid.innerHTML = articles.map(a => `
+        <div class="wiki-card" onclick="openWikiArticle('${a.id}')" data-cat="${a.cat}">
+            <div class="wiki-card-icon">${a.icon}</div>
+            <div class="wiki-card-body">
+                <div class="wiki-card-cat">${a.cat}</div>
+                <h3 class="wiki-card-title">${a.title}</h3>
+                <p class="wiki-card-text">${a.text}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.openWikiArticle = function(id) {
+    const article = wikiArticles.find(a => a.id === id);
+    if (!article) return;
+
+    const grid = document.getElementById('wikiGrid');
+    const cats = document.querySelector('.wiki-categories');
+    const search = document.querySelector('.wiki-search');
+    if (cats) cats.style.display = 'none';
+    if (search) search.style.display = 'none';
+
+    grid.innerHTML = `
+        <div class="wiki-detail" style="grid-column: 1 / -1;">
+            <div class="wiki-detail-back" onclick="closeWikiArticle()">
+                <i class="fas fa-arrow-left"></i> ${t('wiki.back')}
+            </div>
+            <div style="font-size:4rem;margin-bottom:1rem;">${article.icon}</div>
+            <h2>${article.title}</h2>
+            <div class="wiki-detail-cat">${article.cat.toUpperCase()}</div>
+            <div class="wiki-detail-content">${article.content}</div>
+        </div>
+    `;
+};
+
+window.closeWikiArticle = function() {
+    const cats = document.querySelector('.wiki-categories');
+    const search = document.querySelector('.wiki-search');
+    if (cats) cats.style.display = '';
+    if (search) search.style.display = '';
+    renderWikiCards(wikiArticles);
+};
+
+window.filterWikiCat = function(cat) {
+    document.querySelectorAll('.wiki-cat-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    if (cat === 'all') {
+        renderWikiCards(wikiArticles);
+    } else {
+        renderWikiCards(wikiArticles.filter(a => a.cat === cat));
+    }
+};
+
+window.filterWiki = function(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) { renderWikiCards(wikiArticles); return; }
+    renderWikiCards(wikiArticles.filter(a =>
+        a.title.toLowerCase().includes(q) ||
+        a.text.toLowerCase().includes(q) ||
+        a.cat.toLowerCase().includes(q)
+    ));
 };
 
 window.loadChatbotContent = function() {
