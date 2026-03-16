@@ -586,11 +586,129 @@ window.loadRepertorioContent = function(filter) {
 
 // Additional section loaders...
 window.loadAudiosContent = function() {
-    document.getElementById('audiosContent').innerHTML = `<div class="section-premium"><h1 class="section-title">🎧 ${t('audios.title')}</h1></div>`;
+    const isAuth = window.authClient && window.authClient.isAuthenticated();
+    document.getElementById('audiosContent').innerHTML = `
+        <style>
+            .upload-section { max-width: var(--container-max); margin: 0 auto; padding: 4rem 2rem; }
+            .upload-panel { background: var(--gray-900); border: 2px dashed rgba(255,184,0,0.3); border-radius: 16px; padding: 3rem; text-align: center; margin-bottom: 2rem; transition: all 0.3s; cursor: pointer; }
+            .upload-panel:hover, .upload-panel.dragover { border-color: var(--gold-primary); background: rgba(255,184,0,0.05); }
+            .upload-panel i { font-size: 3rem; color: var(--gold-primary); margin-bottom: 1rem; display: block; }
+            .upload-panel h3 { color: var(--white); font-size: 1.3rem; margin-bottom: 0.5rem; }
+            .upload-panel p { color: var(--gray-400); font-size: 0.9rem; }
+            .upload-input { display: none; }
+            .upload-progress { margin-top: 1rem; display: none; }
+            .upload-progress-bar { height: 6px; background: var(--gray-700); border-radius: 3px; overflow: hidden; }
+            .upload-progress-fill { height: 100%; background: var(--gold-primary); width: 0%; transition: width 0.3s; }
+            .upload-status { margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-400); }
+            .audio-list { display: flex; flex-direction: column; gap: 1rem; }
+            .audio-item { background: var(--gray-900); border: 1px solid rgba(255,184,0,0.15); border-radius: 12px; padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+            .audio-item-icon { font-size: 2rem; color: var(--gold-primary); }
+            .audio-item-info { flex: 1; }
+            .audio-item-name { color: var(--white); font-weight: 600; margin-bottom: 0.25rem; }
+            .audio-item-meta { color: var(--gray-400); font-size: 0.85rem; }
+            .audio-player { width: 100%; margin-top: 0.5rem; }
+            .audio-player audio { width: 100%; height: 40px; }
+        </style>
+        <div class="upload-section">
+            <div class="section-header" style="text-align:center;margin-bottom:2rem;">
+                <h1 class="section-title" style="font-family:var(--font-display);font-size:clamp(2.5rem,5vw,4rem);color:var(--gold-primary);">🎧 ${t('audios.section_title')}</h1>
+                <p style="color:var(--gray-400);font-size:1.2rem;">${t('audios.section_subtitle')}</p>
+            </div>
+            
+            ${isAuth ? `
+            <div class="upload-panel" id="audioDropZone" onclick="document.getElementById('audioFileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>${t('audios.upload_title')}</h3>
+                <p>${t('audios.upload_desc')}</p>
+                <input type="file" class="upload-input" id="audioFileInput" accept="audio/*" onchange="handleUpload(this, 'audio')">
+            </div>
+            <div class="upload-progress" id="audioProgress">
+                <div class="upload-progress-bar"><div class="upload-progress-fill" id="audioProgressFill"></div></div>
+                <div class="upload-status" id="audioStatus"></div>
+            </div>
+            ` : `<p style="text-align:center;color:var(--gray-500);margin-bottom:2rem;">${t('audios.login_required')}</p>`}
+            
+            <div class="audio-list" id="audioList">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);">${t('audios.loading')}</div>
+            </div>
+        </div>
+    `;
+    
+    // Load existing audio uploads
+    if (window.API) {
+        API.get('/songs?limit=50').then(data => {
+            const list = document.getElementById('audioList');
+            if (!list || !data || !data.songs) return;
+            const withAudio = data.songs.filter(s => s.audio_url);
+            if (withAudio.length === 0) {
+                list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-500);">' + t('audios.no_audios') + '</div>';
+                return;
+            }
+            list.innerHTML = withAudio.map(s => \`
+                <div class="audio-item">
+                    <div class="audio-item-icon">🎵</div>
+                    <div class="audio-item-info">
+                        <div class="audio-item-name">\${s.title}</div>
+                        <div class="audio-item-meta">\${s.composer || ''} · \${s.style || ''}</div>
+                        <div class="audio-player"><audio controls src="\${s.audio_url}"></audio></div>
+                    </div>
+                </div>
+            \`).join('');
+        });
+    }
+    
+    // Setup drag & drop
+    setupDropZone('audioDropZone', 'audioFileInput');
 };
 
 window.loadPartiturasContent = function() {
-    document.getElementById('partiturasContent').innerHTML = `<div class="section-premium"><h1 class="section-title">📄 ${t('partituras.title')}</h1></div>`;
+    const isAuth = window.authClient && window.authClient.isAuthenticated();
+    document.getElementById('partiturasContent').innerHTML = `
+        <div class="upload-section" style="max-width:var(--container-max);margin:0 auto;padding:4rem 2rem;">
+            <div class="section-header" style="text-align:center;margin-bottom:2rem;">
+                <h1 class="section-title" style="font-family:var(--font-display);font-size:clamp(2.5rem,5vw,4rem);color:var(--gold-primary);">📄 ${t('partituras.section_title')}</h1>
+                <p style="color:var(--gray-400);font-size:1.2rem;">${t('partituras.section_subtitle')}</p>
+            </div>
+            
+            ${isAuth ? `
+            <div class="upload-panel" onclick="document.getElementById('scoreFileInput').click()">
+                <i class="fas fa-file-pdf"></i>
+                <h3>${t('partituras.upload_title')}</h3>
+                <p>${t('partituras.upload_desc')}</p>
+                <input type="file" class="upload-input" id="scoreFileInput" accept=".pdf,image/*" onchange="handleUpload(this, 'scores')">
+            </div>
+            <div class="upload-progress" id="scoresProgress">
+                <div class="upload-progress-bar"><div class="upload-progress-fill" id="scoresProgressFill"></div></div>
+                <div class="upload-status" id="scoresStatus"></div>
+            </div>
+            ` : `<p style="text-align:center;color:var(--gray-500);margin-bottom:2rem;">${t('partituras.login_required')}</p>`}
+            
+            <div id="scoresList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">${t('partituras.loading')}</div>
+            </div>
+        </div>
+    `;
+    
+    if (window.API) {
+        API.get('/songs?limit=50').then(data => {
+            const list = document.getElementById('scoresList');
+            if (!list || !data || !data.songs) return;
+            const withScores = data.songs.filter(s => s.score_url);
+            if (withScores.length === 0) {
+                list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-500);grid-column:1/-1;">' + t('partituras.no_scores') + '</div>';
+                return;
+            }
+            list.innerHTML = withScores.map(s => \`
+                <a href="\${s.score_url}" target="_blank" style="background:var(--gray-900);border:1px solid rgba(255,184,0,0.15);border-radius:12px;padding:1.5rem;text-decoration:none;display:flex;align-items:center;gap:1rem;transition:all 0.2s;">
+                    <i class="fas fa-file-pdf" style="font-size:2rem;color:var(--gold-primary);"></i>
+                    <div>
+                        <div style="color:var(--white);font-weight:600;">\${s.title}</div>
+                        <div style="color:var(--gray-400);font-size:0.85rem;">\${s.composer || ''}</div>
+                    </div>
+                </a>
+            \`).join('');
+        });
+    }
 };
 
 window.loadEstilosContent = function() {
@@ -1588,6 +1706,89 @@ window.generateBlogAI = async function() {
 
 window.loadAdminContent = function() {
     document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
+};
+
+// ===================================
+// UPLOAD HANDLERS (global)
+// ===================================
+
+window.handleUpload = async function(input, type) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    if (!window.authClient || !window.authClient.getToken()) {
+        alert(t('audios.login_required'));
+        return;
+    }
+    
+    const progress = document.getElementById(type + 'Progress');
+    const fill = document.getElementById(type + 'ProgressFill');
+    const status = document.getElementById(type + 'Status');
+    
+    if (progress) progress.style.display = 'block';
+    if (fill) fill.style.width = '10%';
+    if (status) status.textContent = t('upload.uploading') + ' ' + file.name + '...';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        if (fill) fill.style.width = '50%';
+        
+        const res = await fetch('/api/uploads/' + type, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + window.authClient.getToken() },
+            body: formData
+        });
+        
+        if (fill) fill.style.width = '90%';
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.error || 'Upload failed');
+        }
+        
+        if (fill) fill.style.width = '100%';
+        if (status) {
+            status.textContent = '✅ ' + t('upload.success') + ' — ' + file.name;
+            status.style.color = 'var(--green-mariachi)';
+        }
+        
+        // Reload section after 2 seconds
+        setTimeout(() => {
+            if (type === 'audio') window.app.loadSection('audios');
+            if (type === 'scores') window.app.loadSection('partituras');
+        }, 2000);
+        
+    } catch (err) {
+        if (fill) fill.style.width = '0%';
+        if (status) {
+            status.textContent = '❌ ' + err.message;
+            status.style.color = 'var(--red-mariachi)';
+        }
+    }
+    
+    input.value = '';
+};
+
+window.setupDropZone = function(zoneId, inputId) {
+    const zone = document.getElementById(zoneId);
+    if (!zone) return;
+    
+    ['dragenter', 'dragover'].forEach(evt => {
+        zone.addEventListener(evt, (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+        zone.addEventListener(evt, (e) => { e.preventDefault(); zone.classList.remove('dragover'); });
+    });
+    zone.addEventListener('drop', (e) => {
+        const input = document.getElementById(inputId);
+        if (input && e.dataTransfer.files.length > 0) {
+            input.files = e.dataTransfer.files;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
 };
 
 console.log('✅ Premium sections loaded');

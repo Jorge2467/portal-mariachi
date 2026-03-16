@@ -93,6 +93,12 @@ app.use('/api/blog-ai', (req, res, next) => {
     next();
 }, require('./api/blog-ai'));
 
+// Upload routes
+app.use('/api/uploads', (req, res, next) => {
+    if (!dbReady) return res.status(503).json({ error: 'Database not available' });
+    next();
+}, require('./api/uploads'));
+
 // ===================================
 // CHATBOT API - Anthropic Claude
 // ===================================
@@ -175,6 +181,10 @@ app.post('/api/chat', async (req, res) => {
 app.use('/css', express.static(path.join(__dirname, 'css'), { maxAge: 0 }));
 app.use('/js', express.static(path.join(__dirname, 'js'), { maxAge: 0 }));
 app.use('/assets', express.static(path.join(__dirname, 'assets'), { maxAge: 0 }));
+
+// Serve uploaded files (Railway volume)
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }));
 
 // SPA fallback
 app.get('*', (req, res) => {
