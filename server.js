@@ -99,6 +99,30 @@ app.use('/api/uploads', (req, res, next) => {
     next();
 }, require('./api/uploads'));
 
+// Admin routes (users management)
+app.get('/api/admin/users', async (req, res) => {
+    if (!dbReady) return res.status(503).json({ error: 'Database not available' });
+    
+    // Verify admin token
+    const header = req.headers.authorization;
+    if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'No token' });
+    
+    try {
+        const jwt = require('jsonwebtoken');
+        const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+        const decoded = jwt.verify(header.split(' ')[1], JWT_SECRET);
+        if (decoded.role !== 'super_admin') return res.status(403).json({ error: 'Admin only' });
+        
+        const pool = require('./db/pool');
+        const result = await pool.query(
+            'SELECT id, email, name, role, avatar_url, created_at, last_login, is_active FROM users ORDER BY created_at DESC'
+        );
+        res.json({ users: result.rows });
+    } catch (err) {
+        res.status(401).json({ error: 'Invalid token' });
+    }
+});
+
 // ===================================
 // CHATBOT API - Anthropic Claude
 // ===================================

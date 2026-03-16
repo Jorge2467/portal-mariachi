@@ -1705,7 +1705,11 @@ window.generateBlogAI = async function() {
 };
 
 window.loadAdminContent = function() {
-    document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
+    if (window.loadAdminPanel) {
+        window.loadAdminPanel();
+    } else {
+        document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
+    }
 };
 
 // ===================================
