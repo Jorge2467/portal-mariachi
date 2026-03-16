@@ -154,19 +154,40 @@ app.post('/api/chat', async (req, res) => {
         return res.status(500).json({ error: 'API key not configured' });
     }
 
-    const { message, lang = 'es', history = [] } = req.body;
+    const { message, lang = 'es', history = [], image } = req.body;
 
-    if (!message || typeof message !== 'string' || message.length > 2000) {
+    if ((!message || typeof message !== 'string') && !image) {
         return res.status(400).json({ error: 'Invalid message' });
     }
 
     const messages = [];
     for (const h of history.slice(-10)) {
         if (h.role && h.content) {
-            messages.push({ role: h.role, content: h.content.substring(0, 2000) });
+            messages.push({ role: h.role, content: typeof h.content === 'string' ? h.content.substring(0, 2000) : h.content });
         }
     }
-    messages.push({ role: 'user', content: message });
+
+    // Build user message content (text + optional image)
+    if (image) {
+        const userContent = [];
+        // Add image
+        userContent.push({
+            type: 'image',
+            source: {
+                type: 'base64',
+                media_type: image.type || 'image/jpeg',
+                data: image.data
+            }
+        });
+        // Add text
+        userContent.push({
+            type: 'text',
+            text: message || 'Describe esta imagen en el contexto del mariachi y la música mexicana.'
+        });
+        messages.push({ role: 'user', content: userContent });
+    } else {
+        messages.push({ role: 'user', content: message });
+    }
 
     try {
         const response = await fetch('https://api.anthropic.com/v1/messages', {
