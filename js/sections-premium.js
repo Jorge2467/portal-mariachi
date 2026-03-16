@@ -307,29 +307,54 @@ window.loadHomeContent = function() {
             </div>
         </div>
         
-        <div class="stats-grid">
+        <div class="stats-grid" id="homeStats">
             <div class="stat-card">
                 <div class="stat-icon">🎵</div>
-                <div class="stat-number">500+</div>
+                <div class="stat-number" id="statSongs">...</div>
                 <div class="stat-label">${t('stats.songs')}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🎧</div>
-                <div class="stat-number">200+</div>
+                <div class="stat-number" id="statCollections">...</div>
                 <div class="stat-label">${t('stats.audios')}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">📄</div>
-                <div class="stat-number">150+</div>
+                <div class="stat-number" id="statMariachis">...</div>
                 <div class="stat-label">${t('stats.scores')}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">📚</div>
-                <div class="stat-number">50+</div>
+                <div class="stat-number" id="statCourses">...</div>
                 <div class="stat-label">${t('stats.styles')}</div>
             </div>
         </div>
     `;
+    // Load real stats from API
+    if (window.API) {
+        API.stats().then(data => {
+            if (!data) return;
+            const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+            el('statSongs', data.songs || 0);
+            el('statCollections', data.collections || 0);
+            el('statMariachis', data.mariachis || 0);
+            el('statCourses', data.courses || 0);
+        });
+
+        API.featuredSong().then(song => {
+            if (!song) return;
+            const info = document.querySelector('.hero-card-info');
+            if (!info) return;
+            info.querySelector('h3').textContent = '🎵 ' + song.title;
+            info.querySelector('p').textContent = song.description || '';
+            const metas = info.querySelectorAll('.meta-value');
+            if (metas[0]) metas[0].textContent = song.composer || t('home.traditional');
+            if (metas[1]) metas[1].textContent = song.style || '';
+            if (metas[2]) metas[2].textContent = song.year || t('home.traditional');
+            const scoreNum = document.querySelector('.score-number');
+            if (scoreNum) scoreNum.textContent = song.score_rating || '9.2';
+        });
+    }
 };
 
 // ===================================
@@ -504,34 +529,40 @@ function loadAwardCards(type, gridId) {
     const grid = document.getElementById(gridId || 'awardsGrid');
     if (!grid) return;
     
-    const songs = [
-        { title: 'El Son de la Negra', composer: 'Tradicional', emoji: '🎺', score: 9.2, type: 'Son Jalisciense', badge: t('awards.badge_winner') },
-        { title: 'La Bikina', composer: 'Rubén Fuentes', emoji: '🎻', score: 8.9, type: 'Bolero Ranchero', badge: t('awards.badge_nominee') },
-        { title: 'El Rey', composer: 'José Alfredo Jiménez', emoji: '🎸', score: 9.5, type: 'Ranchera', badge: t('awards.badge_top') },
-        { title: 'Cielito Lindo', composer: 'Quirino Mendoza', emoji: '🎤', score: 9.0, type: 'Son Huasteco', badge: t('awards.badge_classic') },
-        { title: 'Las Mañanitas', composer: 'Tradicional', emoji: '🎵', score: 8.7, type: 'Canción Mexicana', badge: t('awards.badge_popular') },
-        { title: 'Volver Volver', composer: 'Fernando Z. Maldonado', emoji: '🎺', score: 9.1, type: 'Ranchera', badge: t('awards.badge_trending') }
-    ];
+    grid.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-400);">Cargando...</div>';
+
+    const emojis = ['🎺','🎻','🎸','🎤','🎵','🎺','🎻','🎸','🎤','🎵','🎺','🎻'];
     
-    grid.innerHTML = songs.map(song => `
+    const renderCards = (songs) => {
+        grid.innerHTML = songs.map((song, idx) => `
         <div class="award-card" onclick="app.loadSection('repertorio')">
             <div class="award-card-image">
-                ${song.emoji}
-                <div class="award-card-badge">${song.badge}</div>
+                ${emojis[idx % emojis.length]}
+                <div class="award-card-badge">${song.badge || ''}</div>
             </div>
             <div class="award-card-content">
-                <div class="award-card-type">${song.type}</div>
+                <div class="award-card-type">${song.style || ''}</div>
                 <h3 class="award-card-title">${song.title}</h3>
-                <p class="award-card-author">${t('awards.by')} ${song.composer}</p>
+                <p class="award-card-author">${t('awards.by')} ${song.composer || ''}</p>
                 <div class="award-card-score">
                     <div class="score-badge">
-                        <i class="fas fa-star"></i> ${song.score}
+                        <i class="fas fa-star"></i> ${song.score_rating || song.score || 0}
                     </div>
                     <button class="view-btn">${t('awards.view_details')}</button>
                 </div>
             </div>
         </div>
     `).join('');
+    };
+
+    // Fetch from API
+    if (window.API) {
+        API.songs({ limit: 12, sort: 'score_rating' }).then(data => {
+            if (data && data.songs && data.songs.length > 0) {
+                renderCards(data.songs);
+            }
+        });
+    }
 }
 
 // ===================================
@@ -546,13 +577,11 @@ window.loadRepertorioContent = function(filter) {
                 <p class="section-subtitle">${t('repertorio.subtitle')}</p>
             </div>
             
-            <!-- Filter section will be added here -->
-            
             <div class="cards-grid" id="repertorioGrid"></div>
         </div>
     `;
     
-    loadAwardCards('repertorio', 'repertorioGrid'); // Reuse card layout
+    loadAwardCards('repertorio', 'repertorioGrid');
 };
 
 // Additional section loaders...
@@ -1014,63 +1043,40 @@ window.loadAcademyContent = function() {
                 <p class="section-subtitle">${t('academy.subtitle')}</p>
             </div>
             
-            <div class="cards-grid">
-                <div class="academy-card">
-                    <div class="academy-card-image">🎻</div>
-                    <div class="academy-card-content">
-                        <p class="academy-card-instructor">${t('academy.by_maestro')} ${t('academy.instructor1')}</p>
-                        <h3 class="academy-card-title">${t('academy.course1')}</h3>
-                        <div class="academy-card-rating">
-                            <span class="rating-stars">★★★★★</span>
-                            <span class="rating-number">5.0</span>
-                            <span class="meta-info">(234 ${t('academy.students')})</span>
-                        </div>
-                        <div class="academy-card-meta">
-                            <span class="meta-info">12 ${t('academy.lessons')} · 8 ${t('academy.hours')}</span>
-                            <span class="price">${t('academy.free')}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="academy-card">
-                    <div class="academy-card-image">🎺</div>
-                    <div class="academy-card-content">
-                        <p class="academy-card-instructor">${t('academy.by_maestra')} ${t('academy.instructor2')}</p>
-                        <h3 class="academy-card-title">${t('academy.course2')}</h3>
-                        <div class="academy-card-rating">
-                            <span class="rating-stars">★★★★★</span>
-                            <span class="rating-number">4.9</span>
-                            <span class="meta-info">(189 ${t('academy.students')})</span>
-                        </div>
-                        <div class="academy-card-meta">
-                            <span class="meta-info">20 ${t('academy.lessons')} · 12 ${t('academy.hours')}</span>
-                            <span class="price">${t('academy.free')}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="academy-card">
-                    <div class="academy-card-image">🎸</div>
-                    <div class="academy-card-content">
-                        <p class="academy-card-instructor">${t('academy.by_maestro')} ${t('academy.instructor3')}</p>
-                        <h3 class="academy-card-title">${t('academy.course3')}</h3>
-                        <div class="academy-card-rating">
-                            <span class="rating-stars">★★★★★</span>
-                            <span class="rating-number">5.0</span>
-                            <span class="meta-info">(312 ${t('academy.students')})</span>
-                        </div>
-                        <div class="academy-card-meta">
-                            <span class="meta-info">15 ${t('academy.lessons')} · 10 ${t('academy.hours')}</span>
-                            <span class="price">${t('academy.free')}</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="cards-grid" id="academyGrid">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">Cargando cursos...</div>
             </div>
         </div>
     `;
+    
+    // Load courses from API
+    if (window.API) {
+        API.courses().then(data => {
+            const grid = document.getElementById('academyGrid');
+            if (!grid || !data || !data.courses) return;
+            grid.innerHTML = data.courses.map(c => `
+                <div class="academy-card">
+                    <div class="academy-card-image">${c.icon || '🎵'}</div>
+                    <div class="academy-card-content">
+                        <p class="academy-card-instructor">${c.instructor_name || ''}</p>
+                        <h3 class="academy-card-title">${c.title}</h3>
+                        <div class="academy-card-rating">
+                            <span class="rating-stars">★★★★★</span>
+                            <span class="rating-number">${c.rating || 5.0}</span>
+                            <span class="meta-info">(${c.student_count || 0} ${t('academy.students')})</span>
+                        </div>
+                        <div class="academy-card-meta">
+                            <span class="meta-info">${c.lessons || 0} ${t('academy.lessons')} · ${c.hours || 0} ${t('academy.hours')}</span>
+                            <span class="price">${c.is_free ? t('academy.free') : ('€' + c.price)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        });
+    }
 };
 
-window.loadCollectionsContent = function() {
+window.loadCollectionsContentwindow.loadCollectionsContent = function() {
     const container = document.getElementById('collectionsContent');
     container.innerHTML = `
         <style>
@@ -1138,69 +1144,39 @@ window.loadCollectionsContent = function() {
                 <p class="section-subtitle">${t('collections.subtitle')}</p>
             </div>
             
-            <div class="cards-grid">
-                <div class="collection-card">
-                    <div class="collection-icon">🎵</div>
-                    <h3 class="collection-title">${t('collections.col1_title')}</h3>
-                    <p class="collection-category">${t('collections.col1_cat')}</p>
-                    <p style="color: var(--gray-400); margin-bottom: 1rem;">
-                        ${t('collections.col1_desc')}
-                    </p>
-                    <div class="collection-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-music"></i>
-                            <span class="stat-number">45</span> ${t('collections.songs')}
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-heart"></i>
-                            <span class="stat-number">+1,546</span> ${t('collections.favorites')}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="collection-card">
-                    <div class="collection-icon">🎺</div>
-                    <h3 class="collection-title">${t('collections.col2_title')}</h3>
-                    <p class="collection-category">${t('collections.col2_cat')}</p>
-                    <p style="color: var(--gray-400); margin-bottom: 1rem;">
-                        ${t('collections.col2_desc')}
-                    </p>
-                    <div class="collection-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-music"></i>
-                            <span class="stat-number">62</span> ${t('collections.songs')}
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-heart"></i>
-                            <span class="stat-number">+2,318</span> ${t('collections.favorites')}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="collection-card">
-                    <div class="collection-icon">💚</div>
-                    <h3 class="collection-title">${t('collections.col3_title')}</h3>
-                    <p class="collection-category">${t('collections.col3_cat')}</p>
-                    <p style="color: var(--gray-400); margin-bottom: 1rem;">
-                        ${t('collections.col3_desc')}
-                    </p>
-                    <div class="collection-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-music"></i>
-                            <span class="stat-number">38</span> ${t('collections.songs')}
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-heart"></i>
-                            <span class="stat-number">+892</span> ${t('collections.favorites')}
-                        </div>
-                    </div>
-                </div>
+            <div class="cards-grid" id="collectionsGrid">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">Cargando...</div>
             </div>
         </div>
     `;
+    
+    if (window.API) {
+        API.collections().then(data => {
+            const grid = document.getElementById('collectionsGrid');
+            if (!grid || !data || !data.collections) return;
+            grid.innerHTML = data.collections.map(col => `
+                <div class="collection-card">
+                    <div class="collection-icon">${col.icon || '🎵'}</div>
+                    <h3 class="collection-title">${col.title}</h3>
+                    <p class="collection-category">${col.category || ''}</p>
+                    <p style="color: var(--gray-400); margin-bottom: 1rem;">${col.description || ''}</p>
+                    <div class="collection-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-music"></i>
+                            <span class="stat-number">${col.song_count || 0}</span> ${t('collections.songs')}
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-heart"></i>
+                            <span class="stat-number">${col.fav_count || 0}</span> ${t('collections.favorites')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        });
+    }
 };
 
-window.loadDirectoryContent = function() {
+window.loadDirectoryContentwindow.loadDirectoryContent = function() {
     const container = document.getElementById('directoryContent');
     container.innerHTML = `
         <style>
@@ -1285,73 +1261,39 @@ window.loadDirectoryContent = function() {
                 </p>
             </div>
             
-            <div style="max-width: var(--container-max); margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;">
-                <div class="directory-card">
-                    <div class="directory-logo">🎺</div>
-                    <div class="directory-info">
-                        <h3 class="directory-name">Mariachi Vargas de Tecalitlán</h3>
-                        <p class="directory-type">${t('directory.pro_group')}</p>
-                        <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 250+ ${t('directory.presentations')}</span>
-                            <span><i class="fas fa-trophy"></i> 12 ${t('directory.awards')}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> Tecalitlán, Jalisco</span>
-                        </div>
-                    </div>
-                    <div class="directory-actions">
-                        <span class="count-badge">PRO</span>
-                    </div>
-                </div>
-                
-                <div class="directory-card">
-                    <div class="directory-logo">🎻</div>
-                    <div class="directory-info">
-                        <h3 class="directory-name">Mariachi Sol de México</h3>
-                        <p class="directory-type">${t('directory.intl_group')}</p>
-                        <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 180+ ${t('directory.presentations')}</span>
-                            <span><i class="fas fa-trophy"></i> 8 ${t('directory.awards')}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> Ciudad de México</span>
-                        </div>
-                    </div>
-                    <div class="directory-actions">
-                        <span class="count-badge">PRO</span>
-                    </div>
-                </div>
-                
-                <div class="directory-card">
-                    <div class="directory-logo">🎸</div>
-                    <div class="directory-info">
-                        <h3 class="directory-name">Mariachi Los Camperos</h3>
-                        <p class="directory-type">${t('directory.trad_group')}</p>
-                        <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 300+ ${t('directory.presentations')}</span>
-                            <span><i class="fas fa-trophy"></i> 15 ${t('directory.awards')}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> Los Angeles, USA</span>
-                        </div>
-                    </div>
-                    <div class="directory-actions">
-                        <span class="count-badge">PRO</span>
-                    </div>
-                </div>
-                
-                <div class="directory-card">
-                    <div class="directory-logo">🎤</div>
-                    <div class="directory-info">
-                        <h3 class="directory-name">Mariachi Nuevo Tecalitlán</h3>
-                        <p class="directory-type">${t('directory.reg_group')}</p>
-                        <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 95+ ${t('directory.presentations')}</span>
-                            <span><i class="fas fa-trophy"></i> 5 ${t('directory.awards')}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> Guadalajara, Jalisco</span>
-                        </div>
-                    </div>
-                </div>
+            <div id="directoryGrid" style="max-width: var(--container-max); margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);">Cargando directorio...</div>
             </div>
         </div>
     `;
+    
+    if (window.API) {
+        API.mariachis().then(data => {
+            const grid = document.getElementById('directoryGrid');
+            if (!grid || !data || !data.mariachis) return;
+            const el = document.querySelector('.section-header p[style]');
+            if (el) el.innerHTML = '<strong style="color:var(--gold-primary);">' + data.total + '</strong> ' + t('directory.registered');
+            
+            grid.innerHTML = data.mariachis.map(m => `
+                <div class="directory-card">
+                    <div class="directory-logo">🎺</div>
+                    <div class="directory-info">
+                        <h3 class="directory-name">${m.name}</h3>
+                        <p class="directory-type">${m.type || ''}</p>
+                        <div class="directory-meta">
+                            <span><i class="fas fa-music"></i> ${m.presentations || 0}+ ${t('directory.presentations')}</span>
+                            <span><i class="fas fa-trophy"></i> ${m.awards || 0} ${t('directory.awards')}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${m.location || ''}</span>
+                        </div>
+                    </div>
+                    ${m.is_pro ? '<div class="directory-actions"><span class="count-badge">PRO</span></div>' : ''}
+                </div>
+            `).join('');
+        });
+    }
 };
 
-window.loadBlogContent = function() {
+window.loadBlogContentwindow.loadBlogContent = function() {
     const container = document.getElementById('blogContent');
     container.innerHTML = `
         <style>
@@ -1450,72 +1392,38 @@ window.loadBlogContent = function() {
                 <p class="section-subtitle">${t('blog.subtitle')}</p>
             </div>
             
-            <div class="cards-grid">
-                <div class="blog-card">
-                    <div class="blog-card-image">📖</div>
-                    <div class="blog-card-content">
-                        <p class="blog-card-date">${t('blog.date1')}</p>
-                        <h3 class="blog-card-title">${t('blog.post1_title')}</h3>
-                        <p class="blog-card-excerpt">
-                            ${t('blog.post1_excerpt')}
-                        </p>
-                        <div class="blog-card-footer">
-                            <div class="blog-author">
-                                <div class="blog-author-avatar"></div>
-                                <span>Jorge L. Garcia</span>
-                            </div>
-                            <span class="read-more">
-                                ${t('blog.read_more')} <i class="fas fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="blog-card">
-                    <div class="blog-card-image">🎺</div>
-                    <div class="blog-card-content">
-                        <p class="blog-card-date">${t('blog.date2')}</p>
-                        <h3 class="blog-card-title">${t('blog.post2_title')}</h3>
-                        <p class="blog-card-excerpt">
-                            ${t('blog.post2_excerpt')}
-                        </p>
-                        <div class="blog-card-footer">
-                            <div class="blog-author">
-                                <div class="blog-author-avatar"></div>
-                                <span>Ana M. Hernández</span>
-                            </div>
-                            <span class="read-more">
-                                ${t('blog.read_more')} <i class="fas fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="blog-card">
-                    <div class="blog-card-image">🎻</div>
-                    <div class="blog-card-content">
-                        <p class="blog-card-date">${t('blog.date3')}</p>
-                        <h3 class="blog-card-title">${t('blog.post3_title')}</h3>
-                        <p class="blog-card-excerpt">
-                            ${t('blog.post3_excerpt')}
-                        </p>
-                        <div class="blog-card-footer">
-                            <div class="blog-author">
-                                <div class="blog-author-avatar"></div>
-                                <span>Carlos Mendoza</span>
-                            </div>
-                            <span class="read-more">
-                                ${t('blog.read_more')} <i class="fas fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+            <div class="cards-grid" id="blogGrid">
+                <div style="text-align:center;padding:2rem;color:var(--gray-400);grid-column:1/-1;">Cargando artículos...</div>
             </div>
         </div>
     `;
+    
+    if (window.API) {
+        API.blog().then(data => {
+            const grid = document.getElementById('blogGrid');
+            if (!grid || !data || !data.posts) return;
+            grid.innerHTML = data.posts.map(post => `
+                <div class="blog-card">
+                    <div class="blog-card-image">${post.icon || '📖'}</div>
+                    <div class="blog-card-content">
+                        <p class="blog-card-date">${post.published_at ? new Date(post.published_at).toLocaleDateString() : ''}</p>
+                        <h3 class="blog-card-title">${post.title}</h3>
+                        <p class="blog-card-excerpt">${post.excerpt || ''}</p>
+                        <div class="blog-card-footer">
+                            <div class="blog-author">
+                                <div class="blog-author-avatar"></div>
+                                <span>${post.author_name || ''}</span>
+                            </div>
+                            <span class="read-more">${t('blog.read_more')} <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        });
+    }
 };
 
-window.loadAdminContent = function() {
+window.loadAdminContentwindow.loadAdminContent = function() {
     document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
 };
 
