@@ -3,6 +3,9 @@
  * All section content loaders with Awwwards-inspired design
  */
 
+// Translation helper
+const t = (key) => window.i18n ? window.i18n.t(key) : key;
+
 // ===================================
 // HOME SECTION
 // ===================================
@@ -248,48 +251,46 @@ window.loadHomeContent = function() {
         <div class="hero-premium">
             <div class="hero-container">
                 <div class="hero-badge">
-                    <i class="fas fa-trophy"></i> Canción del Día - ${new Date().toLocaleDateString('es-MX', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    <i class="fas fa-trophy"></i> ${t('home.badge')} - ${new Date().toLocaleDateString(t === undefined ? 'es-MX' : (window.i18n && window.i18n.currentLang === 'en' ? 'en-US' : window.i18n && window.i18n.currentLang === 'pt' ? 'pt-PT' : 'es-MX'), { month: 'long', day: 'numeric', year: 'numeric' })}
                 </div>
                 
-                <h1 class="hero-title">El Portal del Mariachi</h1>
-                <h2 class="hero-subtitle">México Madeira</h2>
+                <h1 class="hero-title">${t('home.title')}</h1>
+                <h2 class="hero-subtitle">${t('home.subtitle')}</h2>
                 <p class="hero-description">
-                    La enciclopedia digital más completa del mariachi. Descubre, aprende y comparte
-                    la riqueza musical de México con el mundo.
+                    ${t('home.description')}
                 </p>
                 
                 <div class="hero-actions">
                     <button class="btn-primary" onclick="app.loadSection('repertorio')">
-                        <i class="fas fa-music"></i> Explorar Repertorio
+                        <i class="fas fa-music"></i> ${t('home.btn_repertorio')}
                     </button>
                     <button class="btn-secondary" onclick="app.loadSection('audios')">
-                        <i class="fas fa-play-circle"></i> Escuchar Audios
+                        <i class="fas fa-play-circle"></i> ${t('home.btn_audios')}
                     </button>
                 </div>
                 
                 <div class="hero-card">
                     <div class="hero-card-info">
-                        <h3>🎵 El Son de la Negra</h3>
+                        <h3>🎵 ${t('home.featured_title')}</h3>
                         <p style="color: var(--gray-400); margin-top: 0.5rem;">
-                            El son más emblemático de Jalisco, reconocido internacionalmente como
-                            símbolo de la música mariachi.
+                            ${t('home.featured_desc')}
                         </p>
                         <div class="hero-card-meta">
                             <div class="meta-item">
-                                <span class="meta-label">Compositor</span>
-                                <span class="meta-value">Tradicional</span>
+                                <span class="meta-label">${t('home.composer')}</span>
+                                <span class="meta-value">${t('home.traditional')}</span>
                             </div>
                             <div class="meta-item">
-                                <span class="meta-label">Estilo</span>
-                                <span class="meta-value">Son Jalisciense</span>
+                                <span class="meta-label">${t('home.style')}</span>
+                                <span class="meta-value">${t('home.son_jalisciense')}</span>
                             </div>
                             <div class="meta-item">
-                                <span class="meta-label">Año</span>
-                                <span class="meta-value">Tradicional</span>
+                                <span class="meta-label">${t('home.year')}</span>
+                                <span class="meta-value">${t('home.traditional')}</span>
                             </div>
                         </div>
                         <button class="btn-primary" style="margin-top: 1.5rem;" onclick="app.loadSection('repertorio')">
-                            <i class="fas fa-headphones"></i> Escuchar Ahora
+                            <i class="fas fa-headphones"></i> ${t('home.listen_now')}
                         </button>
                     </div>
                     
@@ -299,7 +300,7 @@ window.loadHomeContent = function() {
                             <span class="score-max">/10</span>
                         </div>
                         <button class="vote-btn">
-                            <i class="fas fa-heart"></i> Votar Ahora
+                            <i class="fas fa-heart"></i> ${t('home.vote_now')}
                         </button>
                     </div>
                 </div>
@@ -310,22 +311,22 @@ window.loadHomeContent = function() {
             <div class="stat-card">
                 <div class="stat-icon">🎵</div>
                 <div class="stat-number">500+</div>
-                <div class="stat-label">Canciones</div>
+                <div class="stat-label">${t('stats.songs')}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🎧</div>
                 <div class="stat-number">200+</div>
-                <div class="stat-label">Audios</div>
+                <div class="stat-label">${t('stats.audios')}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">📄</div>
                 <div class="stat-number">150+</div>
-                <div class="stat-label">Partituras</div>
+                <div class="stat-label">${t('stats.scores')}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">📚</div>
                 <div class="stat-number">50+</div>
-                <div class="stat-label">Estilos</div>
+                <div class="stat-label">${t('stats.styles')}</div>
             </div>
         </div>
     `;
@@ -338,10 +339,10 @@ window.loadAwardsContent = function(type) {
     const container = document.getElementById('awardsContent');
     
     const titles = {
-        awards: 'Premios',
-        nominees: 'Nominados',
-        trending: 'Tendencias',
-        winners: 'Ganadores'
+        awards: t('awards.title_awards'),
+        nominees: t('awards.title_nominees'),
+        trending: t('awards.title_trending'),
+        winners: t('awards.title_winners')
     };
     
     const emojis = {
@@ -488,7 +489,7 @@ window.loadAwardsContent = function(type) {
         <div class="section-premium">
             <div class="section-header">
                 <h1 class="section-title">${emojis[type]} ${titles[type]}</h1>
-                <p class="section-subtitle">Las mejores canciones mariachi seleccionadas por nuestra comunidad</p>
+                <p class="section-subtitle">${t('awards.subtitle')}</p>
             </div>
             
             <div class="cards-grid" id="awardsGrid"></div>
@@ -504,12 +505,12 @@ function loadAwardCards(type, gridId) {
     if (!grid) return;
     
     const songs = [
-        { title: 'El Son de la Negra', composer: 'Tradicional', emoji: '🎺', score: 9.2, type: 'Son Jalisciense', badge: 'GANADOR' },
-        { title: 'La Bikina', composer: 'Rubén Fuentes', emoji: '🎻', score: 8.9, type: 'Bolero Ranchero', badge: 'NOMINADO' },
-        { title: 'El Rey', composer: 'José Alfredo Jiménez', emoji: '🎸', score: 9.5, type: 'Ranchera', badge: 'TOP #1' },
-        { title: 'Cielito Lindo', composer: 'Quirino Mendoza', emoji: '🎤', score: 9.0, type: 'Son Huasteco', badge: 'CLÁSICO' },
-        { title: 'Las Mañanitas', composer: 'Tradicional', emoji: '🎵', score: 8.7, type: 'Canción Mexicana', badge: 'POPULAR' },
-        { title: 'Volver Volver', composer: 'Fernando Z. Maldonado', emoji: '🎺', score: 9.1, type: 'Ranchera', badge: 'TRENDING' }
+        { title: 'El Son de la Negra', composer: 'Tradicional', emoji: '🎺', score: 9.2, type: 'Son Jalisciense', badge: t('awards.badge_winner') },
+        { title: 'La Bikina', composer: 'Rubén Fuentes', emoji: '🎻', score: 8.9, type: 'Bolero Ranchero', badge: t('awards.badge_nominee') },
+        { title: 'El Rey', composer: 'José Alfredo Jiménez', emoji: '🎸', score: 9.5, type: 'Ranchera', badge: t('awards.badge_top') },
+        { title: 'Cielito Lindo', composer: 'Quirino Mendoza', emoji: '🎤', score: 9.0, type: 'Son Huasteco', badge: t('awards.badge_classic') },
+        { title: 'Las Mañanitas', composer: 'Tradicional', emoji: '🎵', score: 8.7, type: 'Canción Mexicana', badge: t('awards.badge_popular') },
+        { title: 'Volver Volver', composer: 'Fernando Z. Maldonado', emoji: '🎺', score: 9.1, type: 'Ranchera', badge: t('awards.badge_trending') }
     ];
     
     grid.innerHTML = songs.map(song => `
@@ -521,12 +522,12 @@ function loadAwardCards(type, gridId) {
             <div class="award-card-content">
                 <div class="award-card-type">${song.type}</div>
                 <h3 class="award-card-title">${song.title}</h3>
-                <p class="award-card-author">Por ${song.composer}</p>
+                <p class="award-card-author">${t('awards.by')} ${song.composer}</p>
                 <div class="award-card-score">
                     <div class="score-badge">
                         <i class="fas fa-star"></i> ${song.score}
                     </div>
-                    <button class="view-btn">Ver Detalles</button>
+                    <button class="view-btn">${t('awards.view_details')}</button>
                 </div>
             </div>
         </div>
@@ -541,8 +542,8 @@ window.loadRepertorioContent = function(filter) {
     container.innerHTML = `
         <div class="section-premium">
             <div class="section-header">
-                <h1 class="section-title">🎵 Repertorio Mariachi</h1>
-                <p class="section-subtitle">Explora la colección más completa de música mariachi</p>
+                <h1 class="section-title">🎵 ${t('repertorio.title')}</h1>
+                <p class="section-subtitle">${t('repertorio.subtitle')}</p>
             </div>
             
             <!-- Filter section will be added here -->
@@ -556,23 +557,23 @@ window.loadRepertorioContent = function(filter) {
 
 // Additional section loaders...
 window.loadAudiosContent = function() {
-    document.getElementById('audiosContent').innerHTML = '<div class="section-premium"><h1 class="section-title">🎧 Audios - En Construcción</h1></div>';
+    document.getElementById('audiosContent').innerHTML = `<div class="section-premium"><h1 class="section-title">🎧 ${t('audios.title')}</h1></div>`;
 };
 
 window.loadPartiturasContent = function() {
-    document.getElementById('partiturasContent').innerHTML = '<div class="section-premium"><h1 class="section-title">📄 Partituras - En Construcción</h1></div>';
+    document.getElementById('partiturasContent').innerHTML = `<div class="section-premium"><h1 class="section-title">📄 ${t('partituras.title')}</h1></div>`;
 };
 
 window.loadEstilosContent = function() {
-    document.getElementById('estilosContent').innerHTML = '<div class="section-premium"><h1 class="section-title">📚 Estilos - En Construcción</h1></div>';
+    document.getElementById('estilosContent').innerHTML = `<div class="section-premium"><h1 class="section-title">📚 ${t('estilos.title')}</h1></div>`;
 };
 
 window.loadWikiContent = function() {
-    document.getElementById('wikiContent').innerHTML = '<div class="section-premium"><h1 class="section-title">📖 Wiki Mariachi - En Construcción</h1></div>';
+    document.getElementById('wikiContent').innerHTML = `<div class="section-premium"><h1 class="section-title">📖 ${t('wiki.title')}</h1></div>`;
 };
 
 window.loadChatbotContent = function() {
-    document.getElementById('chatbotContent').innerHTML = '<div class="section-premium"><h1 class="section-title">🤖 Chatbot Musical - En Construcción</h1></div>';
+    document.getElementById('chatbotContent').innerHTML = `<div class="section-premium"><h1 class="section-title">🤖 ${t('chatbot.title')}</h1></div>`;
 };
 
 window.loadAcademyContent = function() {
@@ -659,24 +660,24 @@ window.loadAcademyContent = function() {
         
         <div class="section-premium">
             <div class="section-header">
-                <h1 class="section-title">🎓 Academia Mariachi</h1>
-                <p class="section-subtitle">Aprende con los mejores maestros del mariachi</p>
+                <h1 class="section-title">🎓 ${t('academy.title')}</h1>
+                <p class="section-subtitle">${t('academy.subtitle')}</p>
             </div>
             
             <div class="cards-grid">
                 <div class="academy-card">
                     <div class="academy-card-image">🎻</div>
                     <div class="academy-card-content">
-                        <p class="academy-card-instructor">Por Maestro Luis Hernández</p>
-                        <h3 class="academy-card-title">Técnicas Avanzadas de Violín Mariachi</h3>
+                        <p class="academy-card-instructor">${t('academy.by_maestro')} ${t('academy.instructor1')}</p>
+                        <h3 class="academy-card-title">${t('academy.course1')}</h3>
                         <div class="academy-card-rating">
                             <span class="rating-stars">★★★★★</span>
                             <span class="rating-number">5.0</span>
-                            <span class="meta-info">(234 estudiantes)</span>
+                            <span class="meta-info">(234 ${t('academy.students')})</span>
                         </div>
                         <div class="academy-card-meta">
-                            <span class="meta-info">12 lecciones · 8 horas</span>
-                            <span class="price">GRATIS</span>
+                            <span class="meta-info">12 ${t('academy.lessons')} · 8 ${t('academy.hours')}</span>
+                            <span class="price">${t('academy.free')}</span>
                         </div>
                     </div>
                 </div>
@@ -684,16 +685,16 @@ window.loadAcademyContent = function() {
                 <div class="academy-card">
                     <div class="academy-card-image">🎺</div>
                     <div class="academy-card-content">
-                        <p class="academy-card-instructor">Por Maestra Ana García</p>
-                        <h3 class="academy-card-title">Trompeta Mariachi: De Principiante a Profesional</h3>
+                        <p class="academy-card-instructor">${t('academy.by_maestra')} ${t('academy.instructor2')}</p>
+                        <h3 class="academy-card-title">${t('academy.course2')}</h3>
                         <div class="academy-card-rating">
                             <span class="rating-stars">★★★★★</span>
                             <span class="rating-number">4.9</span>
-                            <span class="meta-info">(189 estudiantes)</span>
+                            <span class="meta-info">(189 ${t('academy.students')})</span>
                         </div>
                         <div class="academy-card-meta">
-                            <span class="meta-info">20 lecciones · 12 horas</span>
-                            <span class="price">GRATIS</span>
+                            <span class="meta-info">20 ${t('academy.lessons')} · 12 ${t('academy.hours')}</span>
+                            <span class="price">${t('academy.free')}</span>
                         </div>
                     </div>
                 </div>
@@ -701,16 +702,16 @@ window.loadAcademyContent = function() {
                 <div class="academy-card">
                     <div class="academy-card-image">🎸</div>
                     <div class="academy-card-content">
-                        <p class="academy-card-instructor">Por Maestro Carlos Mendoza</p>
-                        <h3 class="academy-card-title">Guitarrón: El Corazón del Mariachi</h3>
+                        <p class="academy-card-instructor">${t('academy.by_maestro')} ${t('academy.instructor3')}</p>
+                        <h3 class="academy-card-title">${t('academy.course3')}</h3>
                         <div class="academy-card-rating">
                             <span class="rating-stars">★★★★★</span>
                             <span class="rating-number">5.0</span>
-                            <span class="meta-info">(312 estudiantes)</span>
+                            <span class="meta-info">(312 ${t('academy.students')})</span>
                         </div>
                         <div class="academy-card-meta">
-                            <span class="meta-info">15 lecciones · 10 horas</span>
-                            <span class="price">GRATIS</span>
+                            <span class="meta-info">15 ${t('academy.lessons')} · 10 ${t('academy.hours')}</span>
+                            <span class="price">${t('academy.free')}</span>
                         </div>
                     </div>
                 </div>
@@ -783,64 +784,64 @@ window.loadCollectionsContent = function() {
         
         <div class="section-premium">
             <div class="section-header">
-                <h1 class="section-title">📂 Colecciones Especiales</h1>
-                <p class="section-subtitle">Colecciones curadas de las mejores canciones mariachi</p>
+                <h1 class="section-title">📂 ${t('collections.title')}</h1>
+                <p class="section-subtitle">${t('collections.subtitle')}</p>
             </div>
             
             <div class="cards-grid">
                 <div class="collection-card">
                     <div class="collection-icon">🎵</div>
-                    <h3 class="collection-title">Sones Jaliscienses Clásicos</h3>
-                    <p class="collection-category">Música Tradicional</p>
+                    <h3 class="collection-title">${t('collections.col1_title')}</h3>
+                    <p class="collection-category">${t('collections.col1_cat')}</p>
                     <p style="color: var(--gray-400); margin-bottom: 1rem;">
-                        La mejor selección de sones tradicionales de Jalisco
+                        ${t('collections.col1_desc')}
                     </p>
                     <div class="collection-stats">
                         <div class="stat-item">
                             <i class="fas fa-music"></i>
-                            <span class="stat-number">45</span> canciones
+                            <span class="stat-number">45</span> ${t('collections.songs')}
                         </div>
                         <div class="stat-item">
                             <i class="fas fa-heart"></i>
-                            <span class="stat-number">+1,546</span> favoritos
+                            <span class="stat-number">+1,546</span> ${t('collections.favorites')}
                         </div>
                     </div>
                 </div>
                 
                 <div class="collection-card">
                     <div class="collection-icon">🎺</div>
-                    <h3 class="collection-title">Rancheras Inolvidables</h3>
-                    <p class="collection-category">Género Ranchera</p>
+                    <h3 class="collection-title">${t('collections.col2_title')}</h3>
+                    <p class="collection-category">${t('collections.col2_cat')}</p>
                     <p style="color: var(--gray-400); margin-bottom: 1rem;">
-                        Las rancheras más emblemáticas del repertorio mariachi
+                        ${t('collections.col2_desc')}
                     </p>
                     <div class="collection-stats">
                         <div class="stat-item">
                             <i class="fas fa-music"></i>
-                            <span class="stat-number">62</span> canciones
+                            <span class="stat-number">62</span> ${t('collections.songs')}
                         </div>
                         <div class="stat-item">
                             <i class="fas fa-heart"></i>
-                            <span class="stat-number">+2,318</span> favoritos
+                            <span class="stat-number">+2,318</span> ${t('collections.favorites')}
                         </div>
                     </div>
                 </div>
                 
                 <div class="collection-card">
                     <div class="collection-icon">💚</div>
-                    <h3 class="collection-title">Boleros Mariachi</h3>
-                    <p class="collection-category">Baladas Románticas</p>
+                    <h3 class="collection-title">${t('collections.col3_title')}</h3>
+                    <p class="collection-category">${t('collections.col3_cat')}</p>
                     <p style="color: var(--gray-400); margin-bottom: 1rem;">
-                        Los boleros más románticos interpretados en mariachi
+                        ${t('collections.col3_desc')}
                     </p>
                     <div class="collection-stats">
                         <div class="stat-item">
                             <i class="fas fa-music"></i>
-                            <span class="stat-number">38</span> canciones
+                            <span class="stat-number">38</span> ${t('collections.songs')}
                         </div>
                         <div class="stat-item">
                             <i class="fas fa-heart"></i>
-                            <span class="stat-number">+892</span> favoritos
+                            <span class="stat-number">+892</span> ${t('collections.favorites')}
                         </div>
                     </div>
                 </div>
@@ -927,10 +928,10 @@ window.loadDirectoryContent = function() {
         
         <div class="section-premium">
             <div class="section-header">
-                <h1 class="section-title">📋 Directorio de Mariachis</h1>
-                <p class="section-subtitle">Los mejores mariachis y profesionales de México</p>
+                <h1 class="section-title">📋 ${t('directory.title')}</h1>
+                <p class="section-subtitle">${t('directory.subtitle')}</p>
                 <p style="color: var(--gray-500); margin-top: 1rem; font-size: 1.1rem;">
-                    <strong style="color: var(--gold-primary);">248</strong> Mariachis y Profesionales registrados
+                    <strong style="color: var(--gold-primary);">248</strong> ${t('directory.registered')}
                 </p>
             </div>
             
@@ -939,10 +940,10 @@ window.loadDirectoryContent = function() {
                     <div class="directory-logo">🎺</div>
                     <div class="directory-info">
                         <h3 class="directory-name">Mariachi Vargas de Tecalitlán</h3>
-                        <p class="directory-type">Agrupación Profesional</p>
+                        <p class="directory-type">${t('directory.pro_group')}</p>
                         <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 250+ Presentaciones</span>
-                            <span><i class="fas fa-trophy"></i> 12 Premios</span>
+                            <span><i class="fas fa-music"></i> 250+ ${t('directory.presentations')}</span>
+                            <span><i class="fas fa-trophy"></i> 12 ${t('directory.awards')}</span>
                             <span><i class="fas fa-map-marker-alt"></i> Tecalitlán, Jalisco</span>
                         </div>
                     </div>
@@ -955,10 +956,10 @@ window.loadDirectoryContent = function() {
                     <div class="directory-logo">🎻</div>
                     <div class="directory-info">
                         <h3 class="directory-name">Mariachi Sol de México</h3>
-                        <p class="directory-type">Agrupación Internacional</p>
+                        <p class="directory-type">${t('directory.intl_group')}</p>
                         <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 180+ Presentaciones</span>
-                            <span><i class="fas fa-trophy"></i> 8 Premios</span>
+                            <span><i class="fas fa-music"></i> 180+ ${t('directory.presentations')}</span>
+                            <span><i class="fas fa-trophy"></i> 8 ${t('directory.awards')}</span>
                             <span><i class="fas fa-map-marker-alt"></i> Ciudad de México</span>
                         </div>
                     </div>
@@ -971,10 +972,10 @@ window.loadDirectoryContent = function() {
                     <div class="directory-logo">🎸</div>
                     <div class="directory-info">
                         <h3 class="directory-name">Mariachi Los Camperos</h3>
-                        <p class="directory-type">Agrupación Tradicional</p>
+                        <p class="directory-type">${t('directory.trad_group')}</p>
                         <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 300+ Presentaciones</span>
-                            <span><i class="fas fa-trophy"></i> 15 Premios</span>
+                            <span><i class="fas fa-music"></i> 300+ ${t('directory.presentations')}</span>
+                            <span><i class="fas fa-trophy"></i> 15 ${t('directory.awards')}</span>
                             <span><i class="fas fa-map-marker-alt"></i> Los Angeles, USA</span>
                         </div>
                     </div>
@@ -987,10 +988,10 @@ window.loadDirectoryContent = function() {
                     <div class="directory-logo">🎤</div>
                     <div class="directory-info">
                         <h3 class="directory-name">Mariachi Nuevo Tecalitlán</h3>
-                        <p class="directory-type">Agrupación Regional</p>
+                        <p class="directory-type">${t('directory.reg_group')}</p>
                         <div class="directory-meta">
-                            <span><i class="fas fa-music"></i> 95+ Presentaciones</span>
-                            <span><i class="fas fa-trophy"></i> 5 Premios</span>
+                            <span><i class="fas fa-music"></i> 95+ ${t('directory.presentations')}</span>
+                            <span><i class="fas fa-trophy"></i> 5 ${t('directory.awards')}</span>
                             <span><i class="fas fa-map-marker-alt"></i> Guadalajara, Jalisco</span>
                         </div>
                     </div>
@@ -1095,19 +1096,18 @@ window.loadBlogContent = function() {
         
         <div class="section-premium">
             <div class="section-header">
-                <h1 class="section-title">📝 Blog Mariachi</h1>
-                <p class="section-subtitle">Artículos, noticias y recursos sobre la música mariachi</p>
+                <h1 class="section-title">📝 ${t('blog.title')}</h1>
+                <p class="section-subtitle">${t('blog.subtitle')}</p>
             </div>
             
             <div class="cards-grid">
                 <div class="blog-card">
                     <div class="blog-card-image">📖</div>
                     <div class="blog-card-content">
-                        <p class="blog-card-date">15 de Marzo, 2026</p>
-                        <h3 class="blog-card-title">La Historia del Mariachi: De Cocula a Todo el Mundo</h3>
+                        <p class="blog-card-date">${t('blog.date1')}</p>
+                        <h3 class="blog-card-title">${t('blog.post1_title')}</h3>
                         <p class="blog-card-excerpt">
-                            Descubre los orígenes del mariachi en Cocula, Jalisco, y cómo se convirtió en un símbolo
-                            cultural reconocido internacionalmente.
+                            ${t('blog.post1_excerpt')}
                         </p>
                         <div class="blog-card-footer">
                             <div class="blog-author">
@@ -1115,7 +1115,7 @@ window.loadBlogContent = function() {
                                 <span>Jorge L. Garcia</span>
                             </div>
                             <span class="read-more">
-                                Leer más <i class="fas fa-arrow-right"></i>
+                                ${t('blog.read_more')} <i class="fas fa-arrow-right"></i>
                             </span>
                         </div>
                     </div>
@@ -1124,11 +1124,10 @@ window.loadBlogContent = function() {
                 <div class="blog-card">
                     <div class="blog-card-image">🎺</div>
                     <div class="blog-card-content">
-                        <p class="blog-card-date">10 de Marzo, 2026</p>
-                        <h3 class="blog-card-title">10 Técnicas Esenciales para Tocar la Trompeta Mariachi</h3>
+                        <p class="blog-card-date">${t('blog.date2')}</p>
+                        <h3 class="blog-card-title">${t('blog.post2_title')}</h3>
                         <p class="blog-card-excerpt">
-                            Una guía completa para músicos que desean perfeccionar su técnica de trompeta en el
-                            contexto del mariachi tradicional.
+                            ${t('blog.post2_excerpt')}
                         </p>
                         <div class="blog-card-footer">
                             <div class="blog-author">
@@ -1136,7 +1135,7 @@ window.loadBlogContent = function() {
                                 <span>Ana M. Hernández</span>
                             </div>
                             <span class="read-more">
-                                Leer más <i class="fas fa-arrow-right"></i>
+                                ${t('blog.read_more')} <i class="fas fa-arrow-right"></i>
                             </span>
                         </div>
                     </div>
@@ -1145,11 +1144,10 @@ window.loadBlogContent = function() {
                 <div class="blog-card">
                     <div class="blog-card-image">🎻</div>
                     <div class="blog-card-content">
-                        <p class="blog-card-date">5 de Marzo, 2026</p>
-                        <h3 class="blog-card-title">El Violín en el Mariachi: Más Allá de la Melodía</h3>
+                        <p class="blog-card-date">${t('blog.date3')}</p>
+                        <h3 class="blog-card-title">${t('blog.post3_title')}</h3>
                         <p class="blog-card-excerpt">
-                            Exploramos el papel fundamental del violín en el mariachi y las técnicas que lo hacen único
-                            en este género musical.
+                            ${t('blog.post3_excerpt')}
                         </p>
                         <div class="blog-card-footer">
                             <div class="blog-author">
@@ -1157,7 +1155,7 @@ window.loadBlogContent = function() {
                                 <span>Carlos Mendoza</span>
                             </div>
                             <span class="read-more">
-                                Leer más <i class="fas fa-arrow-right"></i>
+                                ${t('blog.read_more')} <i class="fas fa-arrow-right"></i>
                             </span>
                         </div>
                     </div>
@@ -1168,7 +1166,7 @@ window.loadBlogContent = function() {
 };
 
 window.loadAdminContent = function() {
-    document.getElementById('adminContent').innerHTML = '<div class="section-premium"><h1 class="section-title">👑 Panel de Administración - En Construcción</h1></div>';
+    document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
 };
 
 console.log('✅ Premium sections loaded');
