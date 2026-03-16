@@ -81,23 +81,6 @@ app.use('/api/auth', (req, res, next) => {
     router(req, res, next);
 });
 
-// Diagnostic endpoint
-app.get('/api/debug', async (req, res) => {
-    try {
-        const pool = require('./db/pool');
-        const songs = await pool.query('SELECT COUNT(*) as c FROM songs');
-        const users = await pool.query('SELECT COUNT(*) as c FROM users');
-        res.json({ 
-            db: 'connected',
-            songs: songs.rows[0].c,
-            users: users.rows[0].c,
-            dbReady: dbReady
-        });
-    } catch (err) {
-        res.json({ db: 'error', message: err.message, code: err.code });
-    }
-});
-
 // Content routes (songs, collections, mariachis, blog, courses)
 app.use('/api/content', (req, res, next) => {
     if (!dbReady) return res.status(503).json({ error: 'Database not available' });

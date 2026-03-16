@@ -1076,7 +1076,7 @@ window.loadAcademyContent = function() {
     }
 };
 
-window.loadCollectionsContentwindow.loadCollectionsContent = function() {
+window.loadCollectionsContent = function() {
     const container = document.getElementById('collectionsContent');
     container.innerHTML = `
         <style>
@@ -1176,7 +1176,7 @@ window.loadCollectionsContentwindow.loadCollectionsContent = function() {
     }
 };
 
-window.loadDirectoryContentwindow.loadDirectoryContent = function() {
+window.loadDirectoryContent = function() {
     const container = document.getElementById('directoryContent');
     container.innerHTML = `
         <style>
@@ -1293,7 +1293,7 @@ window.loadDirectoryContentwindow.loadDirectoryContent = function() {
     }
 };
 
-window.loadBlogContentwindow.loadBlogContent = function() {
+window.loadBlogContent = function() {
     const container = document.getElementById('blogContent');
     container.innerHTML = `
         <style>
@@ -1423,7 +1423,7 @@ window.loadBlogContentwindow.loadBlogContent = function() {
     }
 };
 
-window.loadAdminContentwindow.loadAdminContent = function() {
+window.loadAdminContent = function() {
     document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
 };
 

@@ -38,7 +38,7 @@ router.get('/songs', async (req, res) => {
         res.json({ songs: result.rows, total, limit: parseInt(limit), offset: parseInt(offset) });
     } catch (err) {
         console.error('Songs list error:', err.message);
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -49,7 +49,7 @@ router.get('/songs/:id', async (req, res) => {
         if (result.rows.length === 0) return res.status(404).json({ error: 'Song not found' });
         res.json({ song: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -68,7 +68,7 @@ router.post('/songs', authMiddleware, async (req, res) => {
         res.status(201).json({ song: result.rows[0] });
     } catch (err) {
         console.error('Song create error:', err.message);
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -93,7 +93,7 @@ router.put('/songs/:id', authMiddleware, adminMiddleware, async (req, res) => {
         if (result.rows.length === 0) return res.status(404).json({ error: 'Song not found' });
         res.json({ song: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -104,7 +104,7 @@ router.delete('/songs/:id', authMiddleware, adminMiddleware, async (req, res) =>
         if (result.rows.length === 0) return res.status(404).json({ error: 'Song not found' });
         res.json({ deleted: true });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -132,7 +132,7 @@ router.post('/songs/:id/vote', authMiddleware, async (req, res) => {
 
         res.json({ score_rating: parseFloat(avg.rows[0].avg_score), vote_count: parseInt(avg.rows[0].count) });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -151,7 +151,7 @@ router.post('/songs/:id/favorite', authMiddleware, async (req, res) => {
             res.json({ favorited: true });
         }
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -169,7 +169,7 @@ router.get('/collections', async (req, res) => {
         );
         res.json({ collections: result.rows });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -185,7 +185,7 @@ router.get('/collections/:id', async (req, res) => {
 
         res.json({ collection: col.rows[0], songs: songs.rows });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -200,7 +200,7 @@ router.post('/collections', authMiddleware, adminMiddleware, async (req, res) =>
         );
         res.status(201).json({ collection: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -223,7 +223,7 @@ router.get('/mariachis', async (req, res) => {
         const count = await pool.query(`SELECT COUNT(*) FROM mariachis ${where}`, params);
         res.json({ mariachis: result.rows, total: parseInt(count.rows[0].count) });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -238,7 +238,7 @@ router.post('/mariachis', authMiddleware, async (req, res) => {
         );
         res.status(201).json({ mariachi: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -257,7 +257,7 @@ router.get('/blog', async (req, res) => {
         const count = await pool.query('SELECT COUNT(*) FROM blog_posts WHERE status = $1', [status]);
         res.json({ posts: result.rows, total: parseInt(count.rows[0].count) });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -267,7 +267,7 @@ router.get('/blog/:slug', async (req, res) => {
         if (result.rows.length === 0) return res.status(404).json({ error: 'Post not found' });
         res.json({ post: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -287,7 +287,7 @@ router.post('/blog', authMiddleware, adminMiddleware, async (req, res) => {
         res.status(201).json({ post: result.rows[0] });
     } catch (err) {
         if (err.code === '23505') return res.status(409).json({ error: 'Slug already exists' });
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -300,7 +300,7 @@ router.get('/courses', async (req, res) => {
         const result = await pool.query('SELECT * FROM courses ORDER BY rating DESC, student_count DESC');
         res.json({ courses: result.rows });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -316,7 +316,7 @@ router.post('/courses', authMiddleware, adminMiddleware, async (req, res) => {
         );
         res.status(201).json({ course: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
@@ -342,7 +342,7 @@ router.get('/stats', async (req, res) => {
             users: parseInt(users.rows[0].count)
         });
     } catch (err) {
-        res.status(500).json({ error: 'Internal error', detail: err.message });
+        res.status(500).json({ error: 'Internal error' });
     }
 });
 
