@@ -920,8 +920,130 @@ html {
 }
 
 /* ===================================
+   AUTH TABS
+   =================================== */
+.auth-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(255,184,0,0.2);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.auth-tab-btn.active {
+    color: var(--gold-primary);
+    border-bottom-color: var(--gold-primary);
+}
+
+.auth-tab-btn:hover {
+    color: var(--gold-light);
+}
+
+/* ===================================
    UTILITIES
    =================================== */
 .hidden {
     display: none !important;
+}
+
+/* ===================================
+   VOTE & FAVORITE SYSTEM
+   =================================== */
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,184,0,0.2);
+    background: rgba(255,255,255,0.05);
+    color: var(--gray-400);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.fav-btn:hover {
+    border-color: var(--red-mariachi);
+    color: var(--red-mariachi);
+    background: rgba(220,38,38,0.1);
+    transform: scale(1.1);
+}
+
+.fav-btn-hero {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255,184,0,0.2);
+    background: rgba(255,255,255,0.05);
+    color: var(--gray-400);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    margin-top: 0.75rem;
+}
+
+.fav-btn-hero:hover {
+    border-color: var(--red-mariachi);
+    color: var(--red-mariachi);
+    background: rgba(220,38,38,0.1);
+}
+
+.vote-btn {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(255,184,0,0.3);
+    background: rgba(255,184,0,0.1);
+    color: var(--gold-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.2s;
+}
+
+.vote-btn:hover {
+    background: var(--gold-primary);
+    color: var(--black);
+    transform: scale(1.05);
+}
+
+.award-card-score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.award-card-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }

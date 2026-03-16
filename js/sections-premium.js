@@ -296,11 +296,14 @@ window.loadHomeContent = function() {
                     
                     <div class="hero-card-score">
                         <div class="score-circle">
-                            <span class="score-number">9.2</span>
+                            <span class="score-number" id="featuredScore">9.2</span>
                             <span class="score-max">/10</span>
                         </div>
-                        <button class="vote-btn">
-                            <i class="fas fa-heart"></i> ${t('home.vote_now')}
+                        <button class="vote-btn" id="featuredVoteBtn" onclick="openVoteModal(window._featuredSongId, window._featuredSongTitle)">
+                            <i class="fas fa-star"></i> ${t('home.vote_now')}
+                        </button>
+                        <button class="fav-btn-hero" onclick="toggleFavorite(window._featuredSongId)">
+                            <i class="far fa-heart" id="featuredFavIcon"></i> ${t('vote.favorite')}
                         </button>
                     </div>
                 </div>
@@ -343,6 +346,8 @@ window.loadHomeContent = function() {
 
         API.featuredSong().then(song => {
             if (!song) return;
+            window._featuredSongId = song.id;
+            window._featuredSongTitle = song.title;
             const info = document.querySelector('.hero-card-info');
             if (!info) return;
             info.querySelector('h3').textContent = '🎵 ' + song.title;
@@ -351,7 +356,7 @@ window.loadHomeContent = function() {
             if (metas[0]) metas[0].textContent = song.composer || t('home.traditional');
             if (metas[1]) metas[1].textContent = song.style || '';
             if (metas[2]) metas[2].textContent = song.year || t('home.traditional');
-            const scoreNum = document.querySelector('.score-number');
+            const scoreNum = document.getElementById('featuredScore');
             if (scoreNum) scoreNum.textContent = song.score_rating || '9.2';
         });
     }
@@ -535,7 +540,7 @@ function loadAwardCards(type, gridId) {
     
     const renderCards = (songs) => {
         grid.innerHTML = songs.map((song, idx) => `
-        <div class="award-card" onclick="app.loadSection('repertorio')">
+        <div class="award-card" data-song-id="${song.id}">
             <div class="award-card-image">
                 ${emojis[idx % emojis.length]}
                 <div class="award-card-badge">${song.badge || ''}</div>
@@ -544,11 +549,20 @@ function loadAwardCards(type, gridId) {
                 <div class="award-card-type">${song.style || ''}</div>
                 <h3 class="award-card-title">${song.title}</h3>
                 <p class="award-card-author">${t('awards.by')} ${song.composer || ''}</p>
+                <p class="award-card-desc" style="color:var(--gray-400);font-size:0.85rem;margin:0.5rem 0;line-height:1.5;">${song.description ? song.description.substring(0, 120) + '...' : ''}</p>
                 <div class="award-card-score">
                     <div class="score-badge">
-                        <i class="fas fa-star"></i> ${song.score_rating || song.score || 0}
+                        <i class="fas fa-star"></i> <span id="score-${song.id}">${song.score_rating || 0}</span>
+                        <span style="font-size:0.75rem;color:var(--gray-400);margin-left:0.25rem;">(${song.vote_count || 0})</span>
                     </div>
-                    <button class="view-btn">${t('awards.view_details')}</button>
+                    <div class="card-actions">
+                        <button class="fav-btn" id="fav-${song.id}" onclick="event.stopPropagation();toggleFavorite('${song.id}')" title="${t('vote.favorite')}">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="vote-btn" onclick="event.stopPropagation();openVoteModal('${song.id}','${song.title.replace(/'/g, '')}')" title="${t('vote.rate')}">
+                            <i class="fas fa-star"></i> ${t('vote.rate')}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -557,7 +571,7 @@ function loadAwardCards(type, gridId) {
 
     // Fetch from API
     if (window.API) {
-        API.songs({ limit: 12, sort: 'score_rating' }).then(data => {
+        API.songs({ limit: 25, sort: 'score_rating' }).then(data => {
             if (data && data.songs && data.songs.length > 0) {
                 renderCards(data.songs);
             }
@@ -1709,6 +1723,189 @@ window.loadAdminContent = function() {
         window.loadAdminPanel();
     } else {
         document.getElementById('adminContent').innerHTML = `<div class="section-premium"><h1 class="section-title">👑 ${t('admin.title')}</h1></div>`;
+    }
+};
+
+// ===================================
+// VOTE & FAVORITE SYSTEM
+// ===================================
+
+window.openVoteModal = function(songId, songTitle) {
+    if (!window.authClient || !window.authClient.isAuthenticated()) {
+        window.app.showNotification(t('vote.login_required'), 'error');
+        return;
+    }
+
+    // Remove existing modal
+    const existing = document.getElementById('voteModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'voteModal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:2000;';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    modal.innerHTML = `
+        <div style="background:var(--gray-900);border:1px solid rgba(255,184,0,0.3);border-radius:16px;padding:2.5rem;max-width:400px;width:90%;text-align:center;">
+            <h3 style="font-family:var(--font-display);color:var(--gold-primary);font-size:1.5rem;margin-bottom:0.5rem;">${t('vote.rate_title')}</h3>
+            <p style="color:var(--gray-300);margin-bottom:1.5rem;">${songTitle || ''}</p>
+            
+            <div id="voteStars" style="display:flex;justify-content:center;gap:0.5rem;margin-bottom:1.5rem;">
+                ${[1,2,3,4,5,6,7,8,9,10].map(n => `
+                    <button onclick="selectVote(${n})" id="star-${n}" 
+                        style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,184,0,0.3);background:transparent;color:var(--gray-400);font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;"
+                        onmouseenter="hoverVote(${n})" onmouseleave="hoverVote(0)">
+                        ${n}
+                    </button>
+                `).join('')}
+            </div>
+            
+            <p id="voteLabel" style="color:var(--gold-primary);font-size:1.2rem;font-weight:700;margin-bottom:1.5rem;min-height:1.5rem;"></p>
+            
+            <div style="display:flex;gap:1rem;justify-content:center;">
+                <button id="voteSubmitBtn" onclick="submitVote('${songId}')" disabled
+                    style="padding:0.75rem 2rem;background:var(--gold-primary);color:var(--black);border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;opacity:0.5;">
+                    ${t('vote.submit')}
+                </button>
+                <button onclick="document.getElementById('voteModal').remove()"
+                    style="padding:0.75rem 1.5rem;background:var(--gray-700);color:var(--white);border:none;border-radius:10px;font-size:1rem;cursor:pointer;">
+                    ${t('vote.cancel')}
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    window._selectedVote = 0;
+};
+
+window.hoverVote = function(n) {
+    const labels = {
+        0: '', 1: '😐', 2: '😐', 3: '🙂', 4: '🙂', 
+        5: '😊', 6: '😊', 7: '🤩', 8: '🤩', 9: '🔥', 10: '🔥 ' + t('vote.perfect')
+    };
+    
+    for (let i = 1; i <= 10; i++) {
+        const btn = document.getElementById('star-' + i);
+        if (!btn) continue;
+        if (n > 0) {
+            btn.style.background = i <= n ? 'var(--gold-primary)' : 'transparent';
+            btn.style.color = i <= n ? 'var(--black)' : 'var(--gray-400)';
+            btn.style.borderColor = i <= n ? 'var(--gold-primary)' : 'rgba(255,184,0,0.3)';
+        } else if (window._selectedVote > 0) {
+            btn.style.background = i <= window._selectedVote ? 'var(--gold-primary)' : 'transparent';
+            btn.style.color = i <= window._selectedVote ? 'var(--black)' : 'var(--gray-400)';
+            btn.style.borderColor = i <= window._selectedVote ? 'var(--gold-primary)' : 'rgba(255,184,0,0.3)';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.color = 'var(--gray-400)';
+            btn.style.borderColor = 'rgba(255,184,0,0.3)';
+        }
+    }
+    
+    const label = document.getElementById('voteLabel');
+    if (label && n > 0) label.textContent = n + '/10 ' + (labels[n] || '');
+};
+
+window.selectVote = function(n) {
+    window._selectedVote = n;
+    hoverVote(n);
+    const label = document.getElementById('voteLabel');
+    if (label) label.textContent = n + '/10';
+    const btn = document.getElementById('voteSubmitBtn');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+};
+
+window.submitVote = async function(songId) {
+    if (!window._selectedVote || !window.authClient) return;
+    
+    const btn = document.getElementById('voteSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '...'; }
+    
+    try {
+        const res = await fetch('/api/content/songs/' + songId + '/vote', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + window.authClient.getToken()
+            },
+            body: JSON.stringify({ score: window._selectedVote })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || 'Vote failed');
+        
+        // Update score on the card
+        const scoreEl = document.getElementById('score-' + songId);
+        if (scoreEl) scoreEl.textContent = data.score_rating;
+        
+        // Update featured score if it's the same song
+        if (window._featuredSongId === songId) {
+            const featured = document.getElementById('featuredScore');
+            if (featured) featured.textContent = data.score_rating;
+        }
+        
+        // Close modal
+        const modal = document.getElementById('voteModal');
+        if (modal) modal.remove();
+        
+        window.app.showNotification(t('vote.success') + ' ' + window._selectedVote + '/10', 'success');
+    } catch (err) {
+        window.app.showNotification(t('vote.error') + ': ' + err.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = t('vote.submit'); }
+    }
+};
+
+window.toggleFavorite = async function(songId) {
+    if (!songId) return;
+    
+    if (!window.authClient || !window.authClient.isAuthenticated()) {
+        window.app.showNotification(t('vote.login_required'), 'error');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/content/songs/' + songId + '/favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + window.authClient.getToken()
+            }
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || 'Favorite failed');
+        
+        // Update heart icon
+        const favBtn = document.getElementById('fav-' + songId);
+        if (favBtn) {
+            const icon = favBtn.querySelector('i');
+            if (data.favorited) {
+                icon.className = 'fas fa-heart';
+                favBtn.style.color = 'var(--red-mariachi)';
+            } else {
+                icon.className = 'far fa-heart';
+                favBtn.style.color = '';
+            }
+        }
+        
+        // Update featured fav icon
+        if (window._featuredSongId === songId) {
+            const fIcon = document.getElementById('featuredFavIcon');
+            if (fIcon) {
+                fIcon.className = data.favorited ? 'fas fa-heart' : 'far fa-heart';
+                fIcon.style.color = data.favorited ? 'var(--red-mariachi)' : '';
+            }
+        }
+        
+        window.app.showNotification(
+            data.favorited ? t('vote.fav_added') : t('vote.fav_removed'), 
+            'success'
+        );
+    } catch (err) {
+        window.app.showNotification(t('vote.error'), 'error');
     }
 };
 
