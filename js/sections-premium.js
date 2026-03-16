@@ -644,16 +644,16 @@ window.loadAudiosContent = function() {
                 list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-500);">' + t('audios.no_audios') + '</div>';
                 return;
             }
-            list.innerHTML = withAudio.map(s => \`
+            list.innerHTML = withAudio.map(s => `
                 <div class="audio-item">
                     <div class="audio-item-icon">🎵</div>
                     <div class="audio-item-info">
-                        <div class="audio-item-name">\${s.title}</div>
-                        <div class="audio-item-meta">\${s.composer || ''} · \${s.style || ''}</div>
-                        <div class="audio-player"><audio controls src="\${s.audio_url}"></audio></div>
+                        <div class="audio-item-name">${s.title}</div>
+                        <div class="audio-item-meta">${s.composer || ''} · ${s.style || ''}</div>
+                        <div class="audio-player"><audio controls src="${s.audio_url}"></audio></div>
                     </div>
                 </div>
-            \`).join('');
+            `).join('');
         });
     }
     
@@ -698,15 +698,15 @@ window.loadPartiturasContent = function() {
                 list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-500);grid-column:1/-1;">' + t('partituras.no_scores') + '</div>';
                 return;
             }
-            list.innerHTML = withScores.map(s => \`
-                <a href="\${s.score_url}" target="_blank" style="background:var(--gray-900);border:1px solid rgba(255,184,0,0.15);border-radius:12px;padding:1.5rem;text-decoration:none;display:flex;align-items:center;gap:1rem;transition:all 0.2s;">
+            list.innerHTML = withScores.map(s => `
+                <a href="${s.score_url}" target="_blank" style="background:var(--gray-900);border:1px solid rgba(255,184,0,0.15);border-radius:12px;padding:1.5rem;text-decoration:none;display:flex;align-items:center;gap:1rem;transition:all 0.2s;">
                     <i class="fas fa-file-pdf" style="font-size:2rem;color:var(--gold-primary);"></i>
                     <div>
-                        <div style="color:var(--white);font-weight:600;">\${s.title}</div>
-                        <div style="color:var(--gray-400);font-size:0.85rem;">\${s.composer || ''}</div>
+                        <div style="color:var(--white);font-weight:600;">${s.title}</div>
+                        <div style="color:var(--gray-400);font-size:0.85rem;">${s.composer || ''}</div>
                     </div>
                 </a>
-            \`).join('');
+            `).join('');
         });
     }
 };
