@@ -74,7 +74,7 @@ Mantén respuestas concisas, amigables, no más de dos párrafos y usa ocasional
                     'anthropic-version': '2023-06-01'
                 },
                 body: JSON.stringify({
-                    model: 'claude-3-5-sonnet-20241022',
+                    model: 'claude-sonnet-4-20250514',
                     max_tokens: 512,
                     system: SYSTEM_PROMPT,
                     messages: [
