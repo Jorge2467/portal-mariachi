@@ -99,6 +99,12 @@ app.use('/api/uploads', (req, res, next) => {
     next();
 }, require('./api/uploads'));
 
+// Telegram webhook route
+app.use('/api/telegram', (req, res, next) => {
+    if (!dbReady) return res.status(503).json({ error: 'Database not available' });
+    next();
+}, require('./api/telegram').router);
+
 // Admin routes (users management)
 app.get('/api/admin/users', async (req, res) => {
     if (!dbReady) return res.status(503).json({ error: 'Database not available' });
