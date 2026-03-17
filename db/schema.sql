@@ -3,6 +3,7 @@
 -- Phase 2: Content + Uploads
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS vector;
 
 -- ===================================
 -- PHASE 1: USERS & AUTH
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'user',
     avatar_url VARCHAR(500),
+    telegram_chat_id BIGINT UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     last_login TIMESTAMPTZ,
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS songs (
     play_count INTEGER DEFAULT 0,
     badge VARCHAR(50),
     is_featured BOOLEAN DEFAULT false,
+    embedding vector(768),
     created_by UUID REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -95,6 +98,7 @@ CREATE TABLE IF NOT EXISTS mariachis (
     presentations INTEGER DEFAULT 0,
     awards INTEGER DEFAULT 0,
     is_pro BOOLEAN DEFAULT false,
+    embedding vector(768),
     created_by UUID REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -113,6 +117,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     author_name VARCHAR(255),
     status VARCHAR(50) DEFAULT 'draft',
     is_ai_generated BOOLEAN DEFAULT false,
+    embedding vector(768),
     published_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

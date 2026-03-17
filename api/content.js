@@ -357,4 +357,83 @@ router.get('/stats', async (req, res) => {
     }
 });
 
+// ===================================
+// RECOMMENDATIONS
+// ===================================
+
+router.get('/recommendations', async (req, res) => {
+    try {
+        if (!req.user) {
+            // No auth, fallback to top rated
+            const fallback = await pool.query('SELECT * FROM songs ORDER BY score_rating DESC LIMIT 5');
+            return res.json({ recommendations: fallback.rows });
+        }
+
+        // 1. Obtener el promedio de los embeddings de las canciones favoritas del usuario
+        const userVectorResult = await pool.query(`
+            SELECT avg(s.embedding) as user_profile_embedding
+            FROM songs s
+            JOIN favorites f ON s.id = f.song_id
+            WHERE f.user_id = $1 AND s.embedding IS NOT NULL
+        `, [req.user.id]);
+
+        const userProfileEmbedding = userVectorResult.rows[0]?.user_profile_embedding;
+
+        let sql;
+        let params = [req.user.id];
+
+        if (userProfileEmbedding) {
+            // 2a. Si tiene preferencias con embeddings, buscar basándose en similitud de coseno + popularidad
+            // <=> es la distancia coseno en pgvector (0 es idéntico, 2 es opuesto)
+            sql = `
+                SELECT s.*,
+                (
+                    (1.0 - (s.embedding <=> $2::vector)) * 5.0 + 
+                    (s.score_rating * 0.3) + 
+                    (s.play_count * 0.05) + 
+                    (s.vote_count * 0.15)
+                ) as recommendation_score
+                FROM songs s
+                WHERE s.id NOT IN (
+                    SELECT song_id FROM favorites WHERE user_id = $1
+                ) AND s.embedding IS NOT NULL
+                ORDER BY recommendation_score DESC LIMIT 5
+            `;
+            // userProfileEmbedding can be passed directly as string format '[0.1, 0.2, ...]'
+            // pgvector's avg() returns it in the correct string format automatically
+            params.push(userProfileEmbedding);
+        } else {
+            // 2b. Si no tiene favoritos o no tienen embeddings, usar el score de popularidad general
+            sql = `
+                SELECT s.*, 
+                (s.score_rating * 0.5 + s.play_count * 0.1 + s.vote_count * 0.4) as recommendation_score
+                FROM songs s
+                WHERE s.id NOT IN (
+                    SELECT song_id FROM favorites WHERE user_id = $1
+                )
+                ORDER BY recommendation_score DESC LIMIT 5
+            `;
+        }
+
+        const result = await pool.query(sql, params);
+        
+        // Fallback por si la query no devuelve nada (ej. el usuario ha marcado como favoritas todas las canciones)
+        if (result.rows.length === 0) {
+            const fallback = await pool.query('SELECT * FROM songs ORDER BY score_rating DESC LIMIT 5');
+            return res.json({ recommendations: fallback.rows });
+        }
+
+        res.json({ recommendations: result.rows });
+    } catch (err) {
+        console.error('Recommendations error:', err);
+        // Fallback robusto en caso de error
+        try {
+            const fallback = await pool.query('SELECT * FROM songs ORDER BY score_rating DESC LIMIT 5');
+            res.json({ recommendations: fallback.rows });
+        } catch (e) {
+            res.status(500).json({ error: 'Internal error on recommendations' });
+        }
+    }
+});
+
 module.exports = router;
