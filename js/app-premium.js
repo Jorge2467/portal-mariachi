@@ -55,9 +55,20 @@ class MariachiAppPremium {
         if (mobileToggle) {
             mobileToggle.addEventListener('click', () => {
                 const navMenu = document.querySelector('.nav-menu');
-                navMenu.classList.toggle('active');
+                navMenu.classList.toggle('open');
+                mobileToggle.classList.toggle('open');
             });
         }
+
+        // Mobile dropdown toggle
+        document.querySelectorAll('.nav-dropdown-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1100) {
+                    e.preventDefault();
+                    btn.closest('.nav-dropdown').classList.toggle('open');
+                }
+            });
+        });
     }
     
     setupAuth() {

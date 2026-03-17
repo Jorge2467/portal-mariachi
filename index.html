@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El Portal del Mariachi - México Madeira</title>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts Premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,48 +17,60 @@
 <body>
     <!-- Navigation Premium -->
     <nav id="mainNav" class="nav-premium">
+        <!-- Top accent line -->
+        <div class="nav-accent-line"></div>
+        
         <div class="nav-container">
             <!-- Logo -->
-            <div class="nav-logo">
-                <i class="fas fa-guitar"></i>
+            <a href="#home" class="nav-logo" onclick="app.loadSection('home')">
+                <div class="nav-logo-icon">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <path d="M18 2C9.16 2 2 9.16 2 18s7.16 16 16 16 16-7.16 16-16S26.84 2 18 2z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <path d="M12 22c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <circle cx="14" cy="12" r="1.5" fill="currentColor"/>
+                        <circle cx="22" cy="12" r="1.5" fill="currentColor"/>
+                        <path d="M14 12v5M22 12v5" stroke="currentColor" stroke-width="1.2"/>
+                        <path d="M11 28l2-6M25 28l-2-6" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+                    </svg>
+                </div>
                 <div class="nav-logo-text">
                     <span class="nav-logo-title">Portal del Mariachi</span>
-                    <span class="nav-logo-subtitle">México Madeira</span>
+                    <span class="nav-logo-divider"></span>
+                    <span class="nav-logo-subtitle">México · Madeira</span>
                 </div>
-            </div>
+            </a>
             
-            <!-- Main Menu -->
-            <div class="nav-menu">
+            <!-- Center Navigation -->
+            <div class="nav-menu" id="navMenu">
                 <a href="#home" class="nav-link active" data-i18n="nav.home">Inicio</a>
                 
-                <!-- Explore Dropdown -->
                 <div class="nav-dropdown">
                     <button class="nav-link nav-dropdown-btn">
-                        <span data-i18n="nav.explore">Explorar</span> <i class="fas fa-chevron-down"></i>
+                        <span data-i18n="nav.explore">Explorar</span>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" class="nav-chevron">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
                     </button>
                     <div class="nav-dropdown-content">
-                        <div class="nav-dropdown-section">
-                            <h4>Destacados</h4>
-                            <a href="#awards">🏆 Premios</a>
-                            <a href="#nominees">🌟 Nominados</a>
-                            <a href="#trending">📈 Tendencias</a>
-                            <a href="#winners">👑 Ganadores</a>
-                        </div>
-                        <div class="nav-dropdown-section">
-                            <h4>Repertorio</h4>
-                            <a href="#repertorio">🎵 Todas las Canciones</a>
-                            <a href="#by-style">🎼 Por Estilo</a>
-                            <a href="#by-composer">👨‍🎤 Por Compositor</a>
-                            <a href="#by-year">📅 Por Año</a>
-                        </div>
-                        <div class="nav-dropdown-section">
-                            <h4>Recursos</h4>
-                            <a href="#audios">🎧 Audios</a>
-                            <a href="#partituras">📄 Partituras</a>
-                            <a href="#videos">🎬 Videos</a>
-                            <a href="#gallery">📸 Galería</a>
-                            <a href="#estilos">📚 Estilos</a>
-                            <a href="#wiki">📖 Wiki Mariachi</a>
+                        <div class="nav-mega-inner">
+                            <div class="nav-dropdown-section">
+                                <h4><span class="nav-section-icon">✦</span> Destacados</h4>
+                                <a href="#awards" onclick="app.loadSection('awards')">Premios & Ranking</a>
+                                <a href="#repertorio" onclick="app.loadSection('repertorio')">Repertorio Completo</a>
+                                <a href="#estilos" onclick="app.loadSection('estilos')">Estilos Musicales</a>
+                            </div>
+                            <div class="nav-dropdown-section">
+                                <h4><span class="nav-section-icon">✦</span> Multimedia</h4>
+                                <a href="#audios" onclick="app.loadSection('audios')">Audios</a>
+                                <a href="#videos" onclick="app.loadSection('videos')">Videos</a>
+                                <a href="#partituras" onclick="app.loadSection('partituras')">Partituras</a>
+                                <a href="#gallery" onclick="app.loadSection('gallery')">Galería</a>
+                            </div>
+                            <div class="nav-dropdown-section">
+                                <h4><span class="nav-section-icon">✦</span> Conocimiento</h4>
+                                <a href="#wiki" onclick="app.loadSection('wiki')">Wiki del Mariachi</a>
+                                <a href="#chatbot" onclick="app.loadSection('chatbot')">Chatbot IA</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -67,49 +79,49 @@
                 <a href="#collections" class="nav-link" data-i18n="nav.collections">Colecciones</a>
                 <a href="#directory" class="nav-link" data-i18n="nav.directory">Directorio</a>
                 <a href="#blog" class="nav-link" data-i18n="nav.blog">Blog</a>
-                <a href="#chatbot" class="nav-link" data-i18n="nav.chatbot_ia">Chatbot IA</a>
+                <a href="#chatbot" class="nav-link nav-link-glow" data-i18n="nav.chatbot_ia">
+                    <span class="nav-ai-dot"></span> Chatbot IA
+                </a>
             </div>
             
             <!-- Right Actions -->
             <div class="nav-actions">
-                <!-- Language Selector -->
-                <select id="languageSelector" class="nav-lang">
-                    <option value="es">ES</option>
-                    <option value="en">EN</option>
-                    <option value="pt">PT</option>
-                </select>
+                <div class="nav-lang-wrap">
+                    <select id="languageSelector" class="nav-lang">
+                        <option value="es">ES</option>
+                        <option value="en">EN</option>
+                        <option value="pt">PT</option>
+                    </select>
+                </div>
                 
-                <!-- Login Button -->
-                <button id="loginBtn" class="btn-nav-secondary">
-                    <i class="fas fa-user"></i> <span data-i18n="login">Iniciar Sesión</span>
+                <button id="loginBtn" class="btn-nav-login">
+                    <i class="fas fa-user"></i> <span data-i18n="login">Entrar</span>
                 </button>
                 
-                <!-- User Menu (Hidden by default) -->
                 <div id="userMenu" class="nav-user-menu" style="display: none;">
                     <button class="nav-user-btn">
-                        <img src="https://ui-avatars.com/api/?name=User&background=FFB800&color=0F0F0F" alt="User" class="nav-user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=User&background=FFB800&color=0F0F0F&bold=true&size=36" alt="User" class="nav-user-avatar">
                         <span id="userName">Usuario</span>
-                        <i class="fas fa-chevron-down"></i>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" class="nav-chevron">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
                     </button>
                     <div class="nav-user-dropdown">
                         <a href="#profile"><i class="fas fa-user"></i> Mi Perfil</a>
                         <a href="#favorites"><i class="fas fa-heart"></i> Favoritos</a>
                         <a href="#submissions"><i class="fas fa-upload"></i> Mis Envíos</a>
                         <a href="#admin" id="adminLink" style="display: none;"><i class="fas fa-crown"></i> Admin Panel</a>
-                        <hr>
+                        <div class="nav-dropdown-divider"></div>
                         <a href="#logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
                     </div>
                 </div>
-                
-                <!-- Submit Button -->
-                <button class="btn-nav-primary">
-                    <i class="fas fa-plus"></i> <span data-i18n="nav.submit">Enviar Canción</span>
-                </button>
             </div>
             
             <!-- Mobile Menu Toggle -->
-            <button class="nav-mobile-toggle">
-                <i class="fas fa-bars"></i>
+            <button class="nav-mobile-toggle" id="mobileToggle">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
             </button>
         </div>
     </nav>
