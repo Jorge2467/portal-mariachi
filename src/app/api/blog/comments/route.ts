@@ -1,0 +1,43 @@
+import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { blogComments } from '@/db/schema';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
+
+const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'portal-mariachi-super-secret-key-2026');
+
+export async function POST(request: Request) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('portal_auth_token')?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { payload } = await jwtVerify(token, secret);
+    const userId = payload.sub as string;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    
+    if (!body.postId || !body.content) {
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
+    }
+
+    const newComment = await db.insert(blogComments).values({
+      postId: body.postId,
+      userId: userId,
+      content: body.content,
+      status: 'approved', // Auto-aprobado temporalmente para MVP
+    }).returning();
+
+    return NextResponse.json(newComment[0], { status: 201 });
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Error al publicar comentario' }, { status: 500 });
+  }
+}
