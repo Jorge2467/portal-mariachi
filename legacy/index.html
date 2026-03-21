@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Portal del Mariachi - México Madeira</title>
+    
+    <!-- Meta/SEO Premium -->
+    <meta name="description" content="Portal interactivo dedicado a la música mariachi, directorio de músicos, academia y partituras de México Madeira.">
+    <meta name="keywords" content="mariachi, música mexicana, partituras mariachi, directorio mariachis, academia mariachi">
+    <meta name="author" content="Jorge Luis Garcia Mendoza">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://portal-mariachi.up.railway.app/">
+    <meta property="og:title" content="El Portal del Mariachi - México Madeira">
+    <meta property="og:description" content="Descubre la mejor música, partituras y directorio de Mariachis. Únete a nuestra comunidad.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://portal-mariachi.up.railway.app/">
+    <meta property="twitter:title" content="El Portal del Mariachi - México Madeira">
+    <meta property="twitter:description" content="Descubre la mejor música, partituras y directorio de Mariachis. Únete a nuestra comunidad.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=1200&auto=format&fit=crop">
+    
+
+    <!-- Google Fonts Premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/premium.css">
+
+    <!-- Lenis Smooth Scroll CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.19/dist/lenis.css">
+
+    <!-- GSAP + ScrollTrigger — defer para no bloquear el render inicial -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js" defer></script>
+
+    <!-- Lenis + init — defer -->
+    <script src="https://unpkg.com/lenis@1.3.19/dist/lenis.min.js" defer></script>
+    <script src="js/lenis-init.js?v=1.2" defer></script>
+</head>
+<body>
+    <!-- Navigation Premium -->
+    <nav id="mainNav" class="nav-premium">
+        <!-- Top accent line -->
+        <div class="nav-accent-line"></div>
+        
+        <div class="nav-container">
+            <!-- Logo -->
+            <a href="#home" class="nav-logo" onclick="app.loadSection('home')">
+                <div class="nav-logo-icon" style="width:56px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                    <img src="/assets/logo-mariachi.png" alt="Logo" loading="eager" style="width:100%;height:100%;object-fit:contain;">
+                </div>
+                <div class="nav-logo-text">
+                    <span class="nav-logo-title">Portal del Mariachi</span>
+                    <span class="nav-logo-divider"></span>
+                    <span class="nav-logo-subtitle">México · Madeira</span>
+                </div>
+            </a>
+            
+            <!-- Center Navigation -->
+            <div class="nav-menu" id="navMenu">
+                <a href="#home" class="nav-link active" data-i18n="nav.home">Inicio</a>
+                
+                <div class="nav-dropdown">
+                    <button class="nav-link nav-dropdown-btn">
+                        <span data-i18n="nav.explore">Explorar</span>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" class="nav-chevron">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                                        <div class="nav-dropdown-content nav-mega-menu">
+                        <div class="nav-mega-inner">
+                            <!-- DESTACADOS -->
+                            <div class="nav-dropdown-section nav-section-featured">
+                                <h4><span class="nav-section-icon">&#x2726;</span> Destacados</h4>
+                                <a href="#awards" onclick="app.loadSection('awards')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F3C6;</span>
+                                    <span class="nav-fc-body"><strong>Premios &amp; Ranking</strong><small>Las canciones mejor valoradas</small></span>
+                                    <span class="nav-fc-badge">TOP</span>
+                                </a>
+                                <a href="#repertorio" onclick="app.loadSection('repertorio')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F3B5;</span>
+                                    <span class="nav-fc-body"><strong>Repertorio Completo</strong><small>Todo el cat&#225;logo musical</small></span>
+                                </a>
+                                <a href="#estilos" onclick="app.loadSection('estilos')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F3AD;</span>
+                                    <span class="nav-fc-body"><strong>Estilos Musicales</strong><small>Son, Ranchera, Vals&#x2026;</small></span>
+                                </a>
+                                <a href="#directory" onclick="app.loadSection('directory')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F465;</span>
+                                    <span class="nav-fc-body"><strong>Directorio de Mariachis</strong><small>M&#250;sicos y agrupaciones</small></span>
+                                </a>
+                            </div>
+                            <!-- MULTIMEDIA -->
+                            <div class="nav-dropdown-section">
+                                <h4><span class="nav-section-icon">&#x2726;</span> Multimedia</h4>
+                                <a href="#audios" onclick="app.loadSection('audios')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F3A7;</span>
+                                    <span class="nav-fc-body"><strong>Audios</strong><small>Escucha el mariachi</small></span>
+                                </a>
+                                <a href="#videos" onclick="app.loadSection('videos')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F3AC;</span>
+                                    <span class="nav-fc-body"><strong>Videos</strong><small>Actuaciones en vivo</small></span>
+                                </a>
+                                <a href="#partituras" onclick="app.loadSection('partituras')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F4C4;</span>
+                                    <span class="nav-fc-body"><strong>Partituras</strong><small>PDF, imagen, Sibelius</small></span>
+                                </a>
+                                <a href="#gallery" onclick="app.loadSection('gallery')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F4F8;</span>
+                                    <span class="nav-fc-body"><strong>Galer&#237;a</strong><small>Fotos y &#225;lbumes</small></span>
+                                </a>
+                            </div>
+                            <!-- CONOCIMIENTO -->
+                            <div class="nav-dropdown-section">
+                                <h4><span class="nav-section-icon">&#x2726;</span> Conocimiento</h4>
+                                <a href="#wiki" onclick="app.loadSection('wiki')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F4D6;</span>
+                                    <span class="nav-fc-body"><strong>Wiki del Mariachi</strong><small>Historia e instrumentos</small></span>
+                                </a>
+                                <a href="#blog" onclick="app.loadSection('blog')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F4DD;</span>
+                                    <span class="nav-fc-body"><strong>Blog</strong><small>Art&#237;culos y noticias</small></span>
+                                </a>
+                                <a href="#chatbot" onclick="app.loadSection('chatbot')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F916;</span>
+                                    <span class="nav-fc-body"><strong>Chatbot IA</strong><small>Pregunta sobre mariachi</small></span>
+                                    <span class="nav-fc-badge nav-fc-badge-ai">IA</span>
+                                </a>
+                                <a href="#anuncios" onclick="app.loadSection('anuncios')" class="nav-feature-card">
+                                    <span class="nav-fc-icon">&#x1F4DA;</span>
+                                    <span class="nav-fc-body"><strong>Anuncios</strong><small>Empleo, instrumentos y servicios</small></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                </div>
+                
+                <a href="#academy" class="nav-link" data-i18n="nav.academy">Academia</a>
+                <a href="#anuncios" class="nav-link" data-i18n="nav.anuncios">Anuncios</a>
+                <a href="#directory" class="nav-link" data-i18n="nav.directory">Directorio</a>
+                <a href="#blog" class="nav-link" data-i18n="nav.blog">Blog</a>
+                <a href="#chatbot" class="nav-link nav-link-glow" data-i18n="nav.chatbot_ia">
+                    <span class="nav-ai-dot"></span> Chatbot IA
+                </a>
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="nav-actions">
+                <div class="nav-lang-wrap">
+                    <select id="languageSelector" class="nav-lang">
+                        <option value="es">ES</option>
+                        <option value="en">EN</option>
+                        <option value="pt">PT</option>
+                    </select>
+                </div>
+                
+                <button id="loginBtn" class="btn-nav-login">
+                    <i class="fas fa-user"></i> <span data-i18n="login">Entrar</span>
+                </button>
+                
+                <div id="userMenu" class="nav-user-menu" style="display: none;">
+                    <button class="nav-user-btn">
+                        <img src="https://ui-avatars.com/api/?name=User&background=FFB800&color=0F0F0F&bold=true&size=36" alt="User" class="nav-user-avatar">
+                        <span id="userName">Usuario</span>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" class="nav-chevron">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="nav-user-dropdown">
+                        <a href="#profile"><i class="fas fa-user"></i> Mi Perfil</a>
+                        <a href="#favorites"><i class="fas fa-heart"></i> Favoritos</a>
+                        <a href="#submissions"><i class="fas fa-upload"></i> Mis Envíos</a>
+                        <a href="#admin" id="adminLink" style="display: none;"><i class="fas fa-crown"></i> Admin Panel</a>
+                        <div class="nav-dropdown-divider"></div>
+                        <a href="#logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="nav-mobile-toggle" id="mobileToggle">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Will be populated by JavaScript -->
+    </main>
+    
+    <!-- Footer Premium -->
+    <footer class="footer-premium">
+        <div class="footer-container">
+            <!-- Newsletter -->
+            <div class="footer-newsletter">
+                <h3 data-i18n="footer.newsletter_title">Recibe las mejores canciones del mariachi</h3>
+                <p data-i18n="footer.newsletter_desc">Suscríbete para recibir novedades, premios y contenido exclusivo</p>
+                <form class="newsletter-form">
+                    <input type="email" data-i18n="footer.email_placeholder" placeholder="Tu correo electrónico" required>
+                    <button type="submit" class="btn-primary" data-i18n="footer.subscribe">Suscribirse</button>
+                </form>
+            </div>
+            
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_portal">Portal</h4>
+                    <a href="#about" data-i18n="footer.about">Acerca de</a>
+                    <a href="#contact" data-i18n="footer.contact">Contacto</a>
+                    <a href="#faq" data-i18n="footer.faq">Preguntas Frecuentes</a>
+                    <a href="#submissions" data-i18n="footer.submissions">Enviar Canción</a>
+                </div>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_resources">Recursos</h4>
+                    <a href="#academy" data-i18n="nav.academy">Academia</a>
+                    <a href="#blog" data-i18n="nav.blog">Blog</a>
+                    <a href="#directory" data-i18n="nav.directory">Directorio</a>
+                    <a href="#anuncios" data-i18n="nav.anuncios">Anuncios</a>
+                </div>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_legal">Legal</h4>
+                    <a href="#terms" data-i18n="footer.terms">Términos de Uso</a>
+                    <a href="#privacy" data-i18n="footer.privacy">Política de Privacidad</a>
+                    <a href="#cookies" data-i18n="footer.cookies">Política de Cookies</a>
+                </div>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_social">Síguenos</h4>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="footer-logo">
+                    <i class="fas fa-guitar"></i>
+                    <span>Portal del Mariachi</span>
+                </div>
+                <p>&copy; 2026 Portal del Mariachi México Madeira. <span data-i18n="footer.rights">Todos los derechos reservados</span>.</p>
+                <p class="footer-director"><span data-i18n="footer.director">Dirigido por</span> <strong>Jorge Luis Garcia Mendoza</strong></p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Auth Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" data-tab="login" data-i18n="login.title">Iniciar Sesión</button>
+                <button class="auth-tab-btn" data-tab="register" data-i18n="auth.register_title">Crear Cuenta</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginTab">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label data-i18n="login.email">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.password">Contraseña</label>
+                        <input type="password" id="loginPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" data-i18n="login.submit">Entrar</button>
+                </form>
+                <p class="modal-footer-text">
+                    <span data-i18n="login.register_prompt">¿No tienes cuenta?</span> 
+                    <a href="#register" data-i18n="login.register">Regístrate aquí</a>
+                </p>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerTab" style="display: none;">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label data-i18n="auth.name">Nombre</label>
+                        <input type="text" id="registerName" required minlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.email">Correo Electrónico</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.password">Contraseña</label>
+                        <input type="password" id="registerPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" data-i18n="auth.register_btn">Crear Cuenta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Telegram Community Button -->
+    <a href="https://t.me/+tunlace" target="_blank" class="telegram-float" aria-label="Únete a nuestra comunidad en Telegram">
+        <i class="fab fa-telegram-plane"></i>
+    </a>
+    <style>
+        .telegram-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: #0088cc;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .telegram-float:hover {
+            background-color: #0077b3;
+            transform: scale(1.1);
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.6);
+        }
+    </style>
+
+    <!-- Scripts de la app (síncronos para garantizar orden correcto de ejecución) -->
+    <script src="js/translations.js?v=2.0"></script>
+    <script src="js/auth.js?v=2.0"></script>
+    <script src="js/api-loader.js?v=2.0"></script>
+    <script src="js/app-premium.js?v=2.0"></script>
+    <script src="js/directory.js?v=2.0"></script>
+    <script src="js/sections-premium.js?v=2.0"></script>
+    <script src="js/admin-panel.js?v=2.0"></script>
+
+    <!-- GSAP Animations — defer, no bloquea el render -->
+    <script src="js/gsap-animations.js?v=1.3" defer></script>
+</body>
+</html>
+

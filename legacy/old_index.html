@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Portal del Mariachi - M├®xico Madeira</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/premium.css">
+</head>
+<body>
+    <!-- Navigation Premium -->
+    <nav id="mainNav" class="nav-premium">
+        <div class="nav-container">
+            <!-- Logo -->
+            <div class="nav-logo">
+                <i class="fas fa-guitar"></i>
+                <div class="nav-logo-text">
+                    <span class="nav-logo-title">Portal del Mariachi</span>
+                    <span class="nav-logo-subtitle">M├®xico Madeira</span>
+                </div>
+            </div>
+            
+            <!-- Main Menu -->
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active" data-i18n="nav.home">Inicio</a>
+                
+                <!-- Explore Dropdown -->
+                <div class="nav-dropdown">
+                    <button class="nav-link nav-dropdown-btn">
+                        <span data-i18n="nav.explore">Explorar</span> <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="nav-dropdown-content">
+                        <div class="nav-dropdown-section">
+                            <h4>Destacados</h4>
+                            <a href="#awards">­ƒÅå Premios</a>
+                            <a href="#nominees">­ƒîƒ Nominados</a>
+                            <a href="#trending">­ƒôê Tendencias</a>
+                            <a href="#winners">­ƒææ Ganadores</a>
+                        </div>
+                        <div class="nav-dropdown-section">
+                            <h4>Repertorio</h4>
+                            <a href="#repertorio">­ƒÄÁ Todas las Canciones</a>
+                            <a href="#by-style">­ƒÄ╝ Por Estilo</a>
+                            <a href="#by-composer">­ƒæ¿ÔÇì­ƒÄñ Por Compositor</a>
+                            <a href="#by-year">­ƒôà Por A├▒o</a>
+                        </div>
+                        <div class="nav-dropdown-section">
+                            <h4>Recursos</h4>
+                            <a href="#audios">­ƒÄº Audios</a>
+                            <a href="#partituras">­ƒôä Partituras</a>
+                            <a href="#videos">­ƒÄ¼ Videos</a>
+                            <a href="#gallery">­ƒô© Galer├¡a</a>
+                            <a href="#estilos">­ƒôÜ Estilos</a>
+                            <a href="#wiki">­ƒôû Wiki Mariachi</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="#academy" class="nav-link" data-i18n="nav.academy">Academia</a>
+                <a href="#collections" class="nav-link" data-i18n="nav.collections">Colecciones</a>
+                <a href="#directory" class="nav-link" data-i18n="nav.directory">Directorio</a>
+                <a href="#blog" class="nav-link" data-i18n="nav.blog">Blog</a>
+                <a href="#chatbot" class="nav-link" data-i18n="nav.chatbot_ia">Chatbot IA</a>
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="nav-actions">
+                <!-- Language Selector -->
+                <select id="languageSelector" class="nav-lang">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                    <option value="pt">PT</option>
+                </select>
+                
+                <!-- Login Button -->
+                <button id="loginBtn" class="btn-nav-secondary">
+                    <i class="fas fa-user"></i> <span data-i18n="login">Iniciar Sesi├│n</span>
+                </button>
+                
+                <!-- User Menu (Hidden by default) -->
+                <div id="userMenu" class="nav-user-menu" style="display: none;">
+                    <button class="nav-user-btn">
+                        <img src="https://ui-avatars.com/api/?name=User&background=FFB800&color=0F0F0F" alt="User" class="nav-user-avatar">
+                        <span id="userName">Usuario</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="nav-user-dropdown">
+                        <a href="#profile"><i class="fas fa-user"></i> Mi Perfil</a>
+                        <a href="#favorites"><i class="fas fa-heart"></i> Favoritos</a>
+                        <a href="#submissions"><i class="fas fa-upload"></i> Mis Env├¡os</a>
+                        <a href="#admin" id="adminLink" style="display: none;"><i class="fas fa-crown"></i> Admin Panel</a>
+                        <hr>
+                        <a href="#logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesi├│n</a>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button class="btn-nav-primary">
+                    <i class="fas fa-plus"></i> <span data-i18n="nav.submit">Enviar Canci├│n</span>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="nav-mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Will be populated by JavaScript -->
+    </main>
+    
+    <!-- Footer Premium -->
+    <footer class="footer-premium">
+        <div class="footer-container">
+            <!-- Newsletter -->
+            <div class="footer-newsletter">
+                <h3 data-i18n="footer.newsletter_title">Recibe las mejores canciones del mariachi</h3>
+                <p data-i18n="footer.newsletter_desc">Suscr├¡bete para recibir novedades, premios y contenido exclusivo</p>
+                <form class="newsletter-form">
+                    <input type="email" data-i18n="footer.email_placeholder" placeholder="Tu correo electr├│nico" required>
+                    <button type="submit" class="btn-primary" data-i18n="footer.subscribe">Suscribirse</button>
+                </form>
+            </div>
+            
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_portal">Portal</h4>
+                    <a href="#about" data-i18n="footer.about">Acerca de</a>
+                    <a href="#contact" data-i18n="footer.contact">Contacto</a>
+                    <a href="#faq" data-i18n="footer.faq">Preguntas Frecuentes</a>
+                    <a href="#submissions" data-i18n="footer.submissions">Enviar Canci├│n</a>
+                </div>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_resources">Recursos</h4>
+                    <a href="#academy" data-i18n="nav.academy">Academia</a>
+                    <a href="#blog" data-i18n="nav.blog">Blog</a>
+                    <a href="#directory" data-i18n="nav.directory">Directorio</a>
+                    <a href="#collections" data-i18n="nav.collections">Colecciones</a>
+                </div>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_legal">Legal</h4>
+                    <a href="#terms" data-i18n="footer.terms">T├®rminos de Uso</a>
+                    <a href="#privacy" data-i18n="footer.privacy">Pol├¡tica de Privacidad</a>
+                    <a href="#cookies" data-i18n="footer.cookies">Pol├¡tica de Cookies</a>
+                </div>
+                <div class="footer-column">
+                    <h4 data-i18n="footer.col_social">S├¡guenos</h4>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="footer-logo">
+                    <i class="fas fa-guitar"></i>
+                    <span>Portal del Mariachi</span>
+                </div>
+                <p>&copy; 2026 Portal del Mariachi M├®xico Madeira. <span data-i18n="footer.rights">Todos los derechos reservados</span>.</p>
+                <p class="footer-director"><span data-i18n="footer.director">Dirigido por</span> <strong>Jorge Luis Garcia Mendoza</strong></p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Auth Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" data-tab="login" data-i18n="login.title">Iniciar Sesi├│n</button>
+                <button class="auth-tab-btn" data-tab="register" data-i18n="auth.register_title">Crear Cuenta</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginTab">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label data-i18n="login.email">Correo Electr├│nico</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.password">Contrase├▒a</label>
+                        <input type="password" id="loginPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" data-i18n="login.submit">Entrar</button>
+                </form>
+                <p class="modal-footer-text">
+                    <span data-i18n="login.register_prompt">┬┐No tienes cuenta?</span> 
+                    <a href="#register" data-i18n="login.register">Reg├¡strate aqu├¡</a>
+                </p>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerTab" style="display: none;">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label data-i18n="auth.name">Nombre</label>
+                        <input type="text" id="registerName" required minlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.email">Correo Electr├│nico</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="login.password">Contrase├▒a</label>
+                        <input type="password" id="registerPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" data-i18n="auth.register_btn">Crear Cuenta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/translations.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api-loader.js"></script>
+    <script src="js/app-premium.js"></script>
+    <script src="js/sections-premium.js"></script>
+    <script src="js/admin-panel.js"></script>
+</body>
+</html>

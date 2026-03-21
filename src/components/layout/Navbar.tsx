@@ -1,0 +1,170 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import Link from 'next/link';
+import { Menu, X, User } from 'lucide-react';
+import AuthModal from '@/components/auth/AuthModal';
+import LanguageSelector from './LanguageSelector';
+import { getDictionaryClient, Language } from '@/lib/i18n/dictionaries';
+
+export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn?: boolean, lang?: Language }) {
+  const { t } = getDictionaryClient(lang);
+
+  const NAV_LINKS = [
+    { name: t('nav.home'), href: '/' },
+    { name: t('nav.explore'), href: '/#repertorio' },
+    { name: t('nav.academy'), href: '/#academia' },
+    { name: t('nav.anuncios'), href: '/#anuncios' },
+    { name: t('nav.directory'), href: '/#directorio' },
+    { name: t('nav.blog'), href: '/#blog' },
+  ];
+  const [hidden, setHidden] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+  
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    const previous = scrollY.getPrevious() || 0;
+    // Si scrolleamos mucho hacia abajo escondemos el nav
+    if (latest > previous && latest > 150) {
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+    
+    // Si pasamos de 50px de scroll, aplicamos glassmorphism
+    setIsScrolled(latest > 50);
+  });
+
+  return (
+    <>
+      <motion.nav
+        variants={{
+          visible: { y: 0 },
+          hidden: { y: '-100%' },
+        }}
+        animate={hidden ? 'hidden' : 'visible'}
+        transition={{ duration: 0.35, ease: 'easeInOut' }}
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'glass-card border-b border-white/10 py-3' 
+            : 'bg-transparent py-5'
+        }`}
+      >
+        <div className="container-fluid flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-full bg-gold-primary flex items-center justify-center overflow-hidden">
+              <span className="font-syne font-bold text-black text-xl">M</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-syne font-bold text-lg leading-tight group-hover:text-gold-primary transition-colors">Portal del Mariachi</span>
+              <span className="text-xs text-gold-light tracking-widest hidden sm:block">MÉXICO • MADEIRA</span>
+            </div>
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            <div className="flex gap-6">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm font-medium text-text-light hover:text-white transition-colors relative group"
+                >
+                  {link.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gold-primary transition-all duration-300 group-hover:w-full" />
+                </Link>
+              ))}
+            </div>
+            
+            <div className="flex items-center gap-4 border-l border-white/10 pl-6">
+              <LanguageSelector currentLang={lang} />
+              {isLoggedIn ? (
+                <Link 
+                  href="/dashboard"
+                  className="flex items-center gap-2 border border-gold-primary/40 text-gold-primary rounded-full px-4 py-2 text-sm hover:bg-gold-primary/10 transition-colors"
+                >
+                  <User size={16} />
+                  <span>{t('auth.welcome')}</span>
+                </Link>
+              ) : (
+                <button 
+                  onClick={() => { setAuthView('login'); setIsAuthOpen(true); }}
+                  className="flex items-center gap-2 border border-white/20 rounded-full px-4 py-2 text-sm hover:bg-white/5 transition-colors"
+                >
+                  <User size={16} />
+                  <span>{t('login')}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Toggle */}
+          <button 
+            className="md:hidden text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu Overlay */}
+      <motion.div
+        initial={false}
+        animate={mobileMenuOpen ? 'open' : 'closed'}
+        variants={{
+          open: { opacity: 1, pointerEvents: 'auto' },
+          closed: { opacity: 0, pointerEvents: 'none' }
+        }}
+        className="fixed inset-0 z-40 bg-bg-dark/95 backdrop-blur-xl pt-24 px-6 md:hidden"
+      >
+        <div className="flex flex-col gap-6 text-2xl font-syne font-semibold">
+          {NAV_LINKS.map((link) => (
+            <Link 
+              key={link.name} 
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="hover:text-gold-primary transition-colors"
+            >
+              {link.name}
+            </Link>
+          ))}
+          <div className="h-px bg-white/10 w-full my-4" />
+          {isLoggedIn ? (
+            <Link 
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-left text-gold-primary hover:text-gold-light focus:outline-none"
+            >
+              <span className="flex items-center gap-3">
+                <User size={24} />
+                Mi Portal
+              </span>
+            </Link>
+          ) : (
+            <button 
+              onClick={() => { setMobileMenuOpen(false); setAuthView('login'); setIsAuthOpen(true); }}
+              className="text-left hover:text-gold-primary focus:outline-none"
+            >
+              <span className="flex items-center gap-3">
+                <User size={24} />
+                Iniciar Sesión
+              </span>
+            </button>
+          )}
+        </div>
+      </motion.div>
+
+      <AuthModal 
+        isOpen={isAuthOpen} 
+        onClose={() => setIsAuthOpen(false)} 
+        initialView={authView} 
+      />
+    </>
+  );
+}

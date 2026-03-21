@@ -1,0 +1,9 @@
+legacy/
+api/
+db/
+assets/
+css/
+js/
+server.js
+old_server.js
+uploads/
