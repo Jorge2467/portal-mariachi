@@ -339,6 +339,7 @@ export const anuncios = pgTable('anuncios', {
   reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
   reviewedAt: timestamp('reviewed_at'),
   createdAt: timestamp('created_at').defaultNow(),
+
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
   index('idx_anuncios_category').on(table.category),
