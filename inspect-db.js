@@ -17,7 +17,8 @@ async function inspectDB() {
     console.log(tables.join('\n'));
     
     // Check specific tables
-    for (const t of ['uploads', 'partituras', 'gallery', 'songs', 'mariachi_directory', 'users', 'courses', 'blog_posts', 'mariachis']) {
+    const targets = ['sessions', 'albums', 'album_photos', 'collections', 'collection_songs', 'blog_comments', 'blog_corrections', 'favorites', 'song_votes', 'anuncios'];
+    for (const t of targets) {
       if (tables.includes(t)) {
         console.log('\n--- SCHEMA FOR ' + t.toUpperCase() + ' ---');
         const colRes = await client.query(`
