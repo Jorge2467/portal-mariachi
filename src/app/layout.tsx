@@ -3,8 +3,8 @@ import { Inter, Syne } from 'next/font/google';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Chatbot from '@/components/chat/Chatbot';
+import CommandPalette from '@/components/ui/CommandPalette';
 import { cookies } from 'next/headers';
-import { Language } from '@/lib/i18n/dictionaries';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -23,8 +23,8 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const isLoggedIn = !!cookieStore.get('portal_auth_token')?.value;
   
-  const rawLang = cookieStore.get('portal_lang')?.value as Language;
-  const lang: Language = (rawLang === 'es' || rawLang === 'en' || rawLang === 'pt') ? rawLang : 'es';
+  const rawLang = cookieStore.get('portal_locale')?.value;
+  const lang = (rawLang === 'es' || rawLang === 'en' || rawLang === 'pt') ? rawLang : 'es';
 
   return (
     <html lang={lang} className={`${inter.variable} ${syne.variable} scroll-smooth snap-y snap-proximity`}>
@@ -35,6 +35,7 @@ export default async function RootLayout({
         </main>
         <Footer />
         <Chatbot />
+        <CommandPalette />
       </body>
     </html>
   );

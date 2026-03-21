@@ -10,6 +10,17 @@ import { jwtVerify } from 'jose';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'portal-mariachi-super-secret-key-2026');
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Gramófono de Oro | Portal Mariachi',
+  description: 'Las piezas más selectas de nuestra vasta biblioteca musical empacadas en alta fidelidad.',
+  openGraph: {
+    title: 'Gramófono de Oro | Portal Mariachi',
+    description: 'Baila al ritmo de las mejores melodías vernáculas de México.',
+  }
+};
+
 export default async function AudiosPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('portal_auth_token')?.value;

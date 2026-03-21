@@ -1,54 +1,40 @@
 'use client';
 
-import { useTransition } from 'react';
-import { setLanguage } from '@/app/actions/i18n';
-import { Language } from '@/lib/i18n/dictionaries';
-import { Loader2 } from 'lucide-react';
+import { useState, useTransition, useEffect } from 'react';
+import { Globe, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-export default function LanguageSelector({ currentLang }: { currentLang: Language }) {
+export default function LanguageSelector() {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [currentLocale, setCurrentLocale] = useState('es');
 
-  const languages: { code: Language, label: string }[] = [
-    { code: 'es', label: 'ES' },
-    { code: 'en', label: 'EN' },
-    { code: 'pt', label: 'PT' }
-  ];
+  useEffect(() => {
+    // Read cookie on client safely
+    const match = document.cookie.match(new RegExp('(^| )portal_locale=([^;]+)'));
+    if (match) setCurrentLocale(match[2]);
+  }, []);
 
-  const handleLanguageChange = (lang: Language) => {
-    if (lang === currentLang) return;
-    
+  const changeLocale = async (newLocale: string) => {
     startTransition(() => {
-      setLanguage(lang);
+      document.cookie = `portal_locale=${newLocale}; path=/; max-age=31536000`;
+      setCurrentLocale(newLocale);
+      router.refresh();
     });
   };
 
   return (
-    <div className="relative group cursor-pointer py-2">
-      <div className="text-sm font-medium text-text-light group-hover:text-gold-primary transition-colors flex items-center gap-1 min-w-[36px]">
-        {isPending ? (
-          <Loader2 size={14} className="animate-spin text-gold-primary" />
-        ) : (
-          <>{currentLang.toUpperCase()} ▼</>
-        )}
-      </div>
+    <div className="relative group">
+      <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-neutral-400 hover:text-white">
+        {isPending ? <Loader2 className="w-4 h-4 animate-spin text-amber-500" /> : <Globe className="w-4 h-4 text-amber-500" />}
+        <span className="text-sm font-bold uppercase">{currentLocale}</span>
+      </button>
 
-      {/* Menú Desplegable con CSS Puro */}
-      <div className="absolute right-0 top-full pt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 z-50">
-        <div className="w-24 bg-black/95 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl py-1 overflow-hidden">
-          {languages.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-white/5 ${
-                lang.code === currentLang 
-                  ? 'text-gold-primary font-bold bg-white/5' 
-                  : 'text-text-light hover:text-white'
-              }`}
-            >
-              {lang.label}
-            </button>
-          ))}
-        </div>
+      {/* Dropdown menu */}
+      <div className="absolute right-0 top-full mt-2 w-32 bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 rounded-xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50 shadow-2xl">
+        <button onClick={() => changeLocale('es')} className={`w-full text-left px-4 py-3 text-sm hover:bg-neutral-800 transition-colors ${currentLocale === 'es' ? 'text-amber-500 font-bold' : 'text-neutral-300'}`}>Español</button>
+        <button onClick={() => changeLocale('en')} className={`w-full text-left px-4 py-3 text-sm hover:bg-neutral-800 transition-colors ${currentLocale === 'en' ? 'text-amber-500 font-bold' : 'text-neutral-300'}`}>English</button>
+        <button onClick={() => changeLocale('pt')} className={`w-full text-left px-4 py-3 text-sm hover:bg-neutral-800 transition-colors ${currentLocale === 'pt' ? 'text-amber-500 font-bold' : 'text-neutral-300'}`}>Português</button>
       </div>
     </div>
   );

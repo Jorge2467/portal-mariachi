@@ -6,18 +6,21 @@ import Link from 'next/link';
 import { Menu, X, User } from 'lucide-react';
 import AuthModal from '@/components/auth/AuthModal';
 import LanguageSelector from './LanguageSelector';
-import { getDictionaryClient, Language } from '@/lib/i18n/dictionaries';
+import es from '@/i18n/es.json';
+import en from '@/i18n/en.json';
+import pt from '@/i18n/pt.json';
 
-export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn?: boolean, lang?: Language }) {
-  const { t } = getDictionaryClient(lang);
+const dicts: Record<string, typeof es> = { es, en, pt };
+
+export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn?: boolean, lang?: string }) {
+  const dict = dicts[lang] || dicts.es;
 
   const NAV_LINKS = [
-    { name: t('nav.home'), href: '/' },
-    { name: t('nav.explore'), href: '/#repertorio' },
-    { name: t('nav.academy'), href: '/#academia' },
-    { name: t('nav.anuncios'), href: '/#anuncios' },
-    { name: t('nav.directory'), href: '/#directorio' },
-    { name: t('nav.blog'), href: '/#blog' },
+    { name: dict.nav.home, href: '/' },
+    { name: dict.nav.directory, href: '/#directorio' },
+    { name: dict.nav.audios, href: '/#audios' },
+    { name: dict.nav.scores, href: '/#partituras' },
+    { name: dict.nav.blog, href: '/#blog' },
   ];
   const [hidden, setHidden] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -82,14 +85,14 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
             </div>
             
             <div className="flex items-center gap-4 border-l border-white/10 pl-6">
-              <LanguageSelector currentLang={lang} />
+              <LanguageSelector />
               {isLoggedIn ? (
                 <Link 
                   href="/dashboard"
                   className="flex items-center gap-2 border border-gold-primary/40 text-gold-primary rounded-full px-4 py-2 text-sm hover:bg-gold-primary/10 transition-colors"
                 >
                   <User size={16} />
-                  <span>{t('auth.welcome')}</span>
+                  <span>{dict.nav.dashboard}</span>
                 </Link>
               ) : (
                 <button 
@@ -97,7 +100,7 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
                   className="flex items-center gap-2 border border-white/20 rounded-full px-4 py-2 text-sm hover:bg-white/5 transition-colors"
                 >
                   <User size={16} />
-                  <span>{t('login')}</span>
+                  <span>{dict.nav.login}</span>
                 </button>
               )}
             </div>
@@ -143,7 +146,7 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
             >
               <span className="flex items-center gap-3">
                 <User size={24} />
-                Mi Portal
+                {dict.nav.dashboard}
               </span>
             </Link>
           ) : (
@@ -153,7 +156,7 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
             >
               <span className="flex items-center gap-3">
                 <User size={24} />
-                Iniciar Sesión
+                {dict.nav.login}
               </span>
             </button>
           )}

@@ -7,9 +7,19 @@ import Academia from '@/components/sections/Academia';
 import Directorio from '@/components/sections/Directorio';
 import Blog from '@/components/sections/Blog';
 import { getDirectoryAds } from '@/lib/data';
+import { cookies } from 'next/headers';
+import es from '@/i18n/es.json';
+import en from '@/i18n/en.json';
+import pt from '@/i18n/pt.json';
+
+const dicts: Record<string, typeof es> = { es, en, pt };
 
 export default async function Home() {
   const directoryAds = await getDirectoryAds(4);
+  const cookieStore = await cookies();
+  const rawLang = cookieStore.get('portal_locale')?.value;
+  const lang = (rawLang === 'es' || rawLang === 'en' || rawLang === 'pt') ? rawLang : 'es';
+  const dict = dicts[lang];
   return (
     <div className="flex flex-col w-full overflow-hidden">
       {/* Hero Section */}
@@ -35,7 +45,11 @@ export default async function Home() {
           <FadeIn delay={0.2} direction="up">
             <h1 className="heading-1 mb-6 max-w-5xl mx-auto drop-shadow-2xl">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-light via-gold-primary to-[#cc9900]">
-                El Portal del Mariachi
+                {dict.hero.title1}
+              </span>
+              <br />
+              <span className="text-white">
+                {dict.hero.title2}
               </span>
             </h1>
           </FadeIn>
@@ -48,19 +62,19 @@ export default async function Home() {
 
           <FadeIn delay={0.4} direction="up">
             <p className="body-text max-w-2xl mx-auto mb-12">
-              La enciclopedia digital más completa del mariachi. Descubre, aprende y comparte la riqueza musical de México con el mundo a través de nuestra plataforma interactiva.
+              {dict.hero.subtitle}
             </p>
           </FadeIn>
 
           <FadeIn delay={0.5} direction="up">
             <div className="flex flex-col sm:flex-row gap-6 items-center justify-center">
               <Link href="#repertorio" className="btn-primary group flex items-center gap-2 w-full sm:w-auto justify-center">
-                <span>Explorar Repertorio</span>
+                <span>{dict.hero.cta}</span>
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="#audios" className="btn-secondary group flex items-center gap-2 w-full sm:w-auto justify-center">
                 <Play size={20} className="group-hover:text-gold-primary transition-colors" />
-                <span>Escuchar Audios</span>
+                <span>{dict.nav.audios}</span>
               </Link>
             </div>
           </FadeIn>

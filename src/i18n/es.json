@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "directory": "Directorio",
+    "audios": "Audios",
+    "scores": "Partituras",
+    "blog": "Papiro",
+    "login": "Ingresar",
+    "dashboard": "Panel"
+  },
+  "hero": {
+    "title1": "El Portal Divino del",
+    "title2": "Mariachi",
+    "subtitle": "La plataforma definitiva para digitalizar, preservar y catapultar la música patrimonial de México al futuro.",
+    "cta": "Explorar Directorio"
+  }
+}

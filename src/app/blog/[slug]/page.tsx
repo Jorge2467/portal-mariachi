@@ -11,6 +11,38 @@ import { jwtVerify } from 'jose';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'portal-mariachi-super-secret-key-2026');
 
+import { Metadata, ResolvingMetadata } from 'next';
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const resolvedParams = await params;
+  const posts = await db.select().from(blogPosts).where(eq(blogPosts.slug, resolvedParams.slug)).limit(1);
+  const post = posts[0];
+
+  if (!post) {
+    return { title: 'Papiro Perdido | Portal Mariachi' };
+  }
+
+  const cleanDescription = (post.content ? post.content.substring(0, 160).replace(/<[^>]+>/g, '') : 'Artículo milenario del Portal Mariachi') + '...';
+
+  return {
+    title: `${post.title} | Portal del Mariachi`,
+    description: cleanDescription,
+    openGraph: {
+      title: post.title,
+      description: cleanDescription,
+      images: post.coverUrl ? [post.coverUrl] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      images: post.coverUrl ? [post.coverUrl] : [],
+    }
+  };
+}
+
 export default async function BlogPostPage({
   params,
 }: {

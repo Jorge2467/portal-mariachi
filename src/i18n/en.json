@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "home": "Home",
+    "directory": "Directory",
+    "audios": "Audios",
+    "scores": "Sheet Music",
+    "blog": "Chronicles",
+    "login": "Login",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "title1": "The Divine Portal of",
+    "title2": "Mariachi",
+    "subtitle": "The definitive platform to digitize, preserve, and catapult Mexico's heritage music into the future.",
+    "cta": "Explore Directory"
+  }
+}
