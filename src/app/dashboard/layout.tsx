@@ -1,9 +1,23 @@
-import { LayoutDashboard, Users, Music, Calendar, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Music, Calendar, Settings, LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { logoutAction } from '@/app/actions/auth';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'portal-mariachi-super-secret-key-2026');
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('portal_auth_token')?.value;
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const { payload } = await jwtVerify(token, secret);
+      if (payload.role === 'admin') isAdmin = true;
+    } catch(e) {}
+  }
   return (
     <div className="min-h-screen bg-bg-dark flex flex-col md:flex-row pt-20">
       
@@ -27,6 +41,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard/eventos" className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-light hover:text-white hover:bg-white/5 transition-colors">
               <Calendar size={18} /> Mis Eventos
             </Link>
+            
+            {isAdmin && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <Link href="/dashboard/admin" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-900/20 text-red-400 border border-red-900/40 hover:bg-red-900/40 hover:text-red-300 transition-colors">
+                  <ShieldAlert size={18} /> Centro de Mando
+                </Link>
+              </div>
+            )}
           </nav>
         </div>
 
