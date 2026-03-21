@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { buildRagContext } from '@/lib/ai/rag';
 
 export async function POST(req: Request) {
   try {
@@ -18,8 +19,12 @@ export async function POST(req: Request) {
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
-    // RAG Context Minimal Setup for Demo
-    const systemInstruction = `Eres un asistente virtual experto del "Portal del Mariachi". Eres amable, respetuoso y conoces sobre música tradicional mexicana. Tu objetivo es ayudar a los usuarios del portal a encontrar partituras, músicos y recursos corporativos. Sé conciso y útil.`;
+    // RAG Augmented Context
+    const ragContext = await buildRagContext(message);
+    const systemInstruction = `Eres un asistente virtual experto del "Portal del Mariachi".
+Tu objetivo es ayudar a los usuarios del portal a encontrar partituras, músicos y recursos corporativos. Sé conciso y útil.
+Basa tu respuesta EN LOS SIGUIENTES DATOS AISLADOS DE LA BASE DE DATOS (Si el contexto no tiene relación con el mensaje del usuario, ignóralo):
+${ragContext}`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',

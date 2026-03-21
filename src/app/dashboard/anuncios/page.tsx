@@ -5,6 +5,7 @@ import { anuncios } from '@/db/schema';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { UploadCloud, PenTool, Euro, Phone, Mail, FileText } from 'lucide-react';
+import { notifyAdmin } from '@/lib/telegram';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'portal-mariachi-super-secret-key-2026');
 
@@ -33,6 +34,8 @@ async function handleAction(formData: FormData) {
     contactEmail,
     status: 'pending' // Moderated by default
   });
+
+  await notifyAdmin(`🎫 Nuevo Clasificado publicado en El Mercado.\n\nTítulo: ${title}\nEsperando aprobación en /dashboard/admin.`);
 
   revalidatePath('/dashboard');
   redirect('/dashboard?success=anuncio_creado');

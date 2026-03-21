@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { songs } from '@/db/schema';
-import { ilike, or } from 'drizzle-orm';
+import { ilike, or, desc, sql } from 'drizzle-orm';
 import { GoogleGenAI } from '@google/genai';
+import { buildRagContext } from '@/lib/ai/rag';
 
 const token = process.env.TELEGRAM_TOKEN;
 
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
     if (text.startsWith('/start')) {
       await sendTelegramMessage(
         chatId, 
-        '🎺 ¡Bienvenido a la comunidad del Portal Mariachi México Madeira!\nEstamos aquí para compartir la pasión por la música. Puedes usar chat normal para hablar conmigo o intentar /buscar <término>.'
+        '🎺 ¡Bienvenido a la comunidad del Portal Mariachi México Madeira!\nEstamos aquí para compartir la pasión por la música. Puedes usar chat normal para hablar conmigo o intentar /buscar <término>, /top y /azar.'
       );
       return NextResponse.json({ ok: true });
     }
@@ -97,7 +98,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // Respuesta Inteligente de Gemini
+    if (text.startsWith('/top')) {
+      const topSongs = await db.select().from(songs).orderBy(desc(songs.scoreRating)).limit(5);
+      if (topSongs.length > 0) {
+        const results = topSongs.map((s: any, i: number) => `${i + 1}. *${s.title}* - ⭐ ${s.scoreRating || 'N/A'}`).join('\n');
+        await sendTelegramMessage(chatId, `🏆 *Top 5 Canciones del Portal:*\n\n${results}`);
+      } else {
+        await sendTelegramMessage(chatId, 'El ranking está vacío por ahora.');
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    if (text.startsWith('/azar')) {
+      const randomSong = await db.select().from(songs).orderBy(sql`RANDOM()`).limit(1);
+      if (randomSong.length > 0) {
+        const s = randomSong[0];
+        await sendTelegramMessage(chatId, `🎲 *Canción al Azar:*\n\n🎵 *${s.title}*\nCompositor: ${s.composer || 'N/A'}\nEstilo: ${s.style || 'N/A'}\n\nEscúchala de inmediato en nuestro portal!`);
+      } else {
+        await sendTelegramMessage(chatId, 'No hay canciones en el portal aún.');
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    // Respuesta Inteligente de Gemini Ponderada por RAG
     if (!ai) {
       await sendTelegramMessage(chatId, 'Mi cerebro inteligente (Gemini) no está encendido.');
       return NextResponse.json({ ok: true });
@@ -109,6 +132,8 @@ export async function POST(req: NextRequest) {
 Eres el asistente experto "Mariachi Bot" del Portal Mariachi México Madeira.
 Eres experto en música mariachi, historia, instrumentos y cultura mexicana.
 Mantén respuestas concisas, amigables, no más de dos párrafos y usa ocasionalmente emojis como 🎻🎺🎷🎵. Toma en cuenta el mensaje actual que te han enviado vía Telegram.
+Basa tu respuesta EN LOS SIGUIENTES DATOS AISLADOS DE LA BASE DE DATOS LOCAL (Si el contexto no tiene relación con el mensaje del usuario, ignóralo):
+${await buildRagContext(text)}
     `;
 
     try {

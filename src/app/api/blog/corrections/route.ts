@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { blogCorrections } from '@/db/schema';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { notifyAdmin } from '@/lib/telegram';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'portal-mariachi-super-secret-key-2026');
 
@@ -35,6 +36,9 @@ export async function POST(request: Request) {
       adminStatus: 'pending',
       aiVerifiedStatus: 'pending',
     }).returning();
+
+    // Notificar al Fundador
+    await notifyAdmin(`Nueva propuesta de enmienda (Corrección Wiki/Blog) recibida.\n\nAprobación pendiente en el Centro de Comando (/dashboard/admin).`);
 
     return NextResponse.json(newCorrection[0], { status: 201 });
   } catch (error) {
