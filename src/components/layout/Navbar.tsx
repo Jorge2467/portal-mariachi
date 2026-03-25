@@ -17,10 +17,10 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
 
   const NAV_LINKS = [
     { name: dict.nav.home, href: '/' },
-    { name: dict.nav.directory, href: '/#directorio' },
-    { name: dict.nav.audios, href: '/#audios' },
-    { name: dict.nav.scores, href: '/#partituras' },
-    { name: dict.nav.blog, href: '/#blog' },
+    { name: dict.nav.directory, href: '/directorio' },
+    { name: dict.nav.audios, href: '/audios' },
+    { name: dict.nav.scores, href: '/partituras' },
+    { name: dict.nav.blog, href: '/blog' },
   ];
   const [hidden, setHidden] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
