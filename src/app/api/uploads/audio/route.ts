@@ -1,78 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { songs, uploads } from '@/db/schema';
-import { join, extname, basename } from 'path';
-import { writeFile, mkdir } from 'fs/promises';
-import { randomBytes } from 'crypto';
-import { existsSync } from 'fs';
+import { songs } from '@/db/schema';
+import { extname, basename } from 'path';
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), 'public', 'uploads');
+const VALID_AUDIO_MIME = new Set([
+  'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg',
+  'audio/aac', 'audio/m4a', 'audio/x-m4a', 'audio/flac',
+  'audio/webm', 'audio/mp4',
+]);
+
+export const config = { api: { bodyParser: false } };
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const userId = formData.get('userId') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No se recibió ningún archivo' }, { status: 400 });
     }
 
-    const validMimes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/aac', 'audio/m4a', 'audio/x-m4a'];
-    if (!validMimes.includes(file.type)) {
-      return NextResponse.json({ error: 'Solo se permiten archivos de audio válidos' }, { status: 400 });
-    }
-
-    const audioDir = join(UPLOAD_DIR, 'audio');
-    if (!existsSync(audioDir)) {
-      await mkdir(audioDir, { recursive: true });
-    }
-
+    // Accept by mime OR extension (browsers sometimes report wrong mime for audio)
     const ext = extname(file.name).toLowerCase();
-    const uniqueName = randomBytes(16).toString('hex') + ext;
-    const filePath = join(audioDir, uniqueName);
-    const fileUrl = `/uploads/audio/${uniqueName}`;
+    const validExts = new Set(['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.webm']);
+    if (!VALID_AUDIO_MIME.has(file.type) && !validExts.has(ext)) {
+      return NextResponse.json({ error: 'Formato de audio no soportado' }, { status: 400 });
+    }
 
-    // Guarda el archivo
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
-
-    // Registra en base de datos
-    const rawName = basename(file.name, ext);
-    const cleanTitle = rawName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (file.size > 60 * 1024 * 1024) {
+      return NextResponse.json({ error: 'El archivo supera el límite de 60 MB' }, { status: 413 });
+    }
 
     if (!db) {
-      return NextResponse.json({ error: 'Database disconnected', url: fileUrl }, { status: 503 });
+      return NextResponse.json({ error: 'Base de datos desconectada' }, { status: 503 });
     }
 
-    // 1. Insertar en Uploads
-    await db.insert(uploads).values({
-      filename: uniqueName,
-      originalName: file.name,
-      mimeType: file.type,
-      sizeBytes: file.size,
-      url: fileUrl,
-      uploadType: 'audio',
-      uploadedBy: userId || undefined
-    });
+    // Convert to base64 data URL → stored in PostgreSQL (permanent, no filesystem needed)
+    const bytes = await file.arrayBuffer();
+    const base64 = Buffer.from(bytes).toString('base64');
+    const mimeType = VALID_AUDIO_MIME.has(file.type) ? file.type : `audio/${ext.slice(1)}`;
+    const dataUrl = `data:${mimeType};base64,${base64}`;
 
-    // 2. Insertar en Songs
-    const newSong = await db.insert(songs).values({
+    const rawName = basename(file.name, ext);
+    const cleanTitle = rawName.replace(/[-_.]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+    const [newSong] = await db.insert(songs).values({
       title: cleanTitle,
-      audioUrl: fileUrl,
-      createdBy: userId || undefined
+      audioUrl: dataUrl,
+      isFeatured: false,
     }).returning({ id: songs.id, title: songs.title, audioUrl: songs.audioUrl });
 
     return NextResponse.json({
       success: true,
-      url: fileUrl,
-      song: newSong[0],
-      message: `"${cleanTitle}" añadida a la audioteca`
+      url: dataUrl,
+      song: newSong,
+      message: `"${cleanTitle}" guardada en la base de datos ✓`,
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error('Audio upload error:', error);
-    return NextResponse.json({ error: 'Error interno guardando el audio' }, { status: 500 });
+    console.error('[upload/audio]', error);
+    return NextResponse.json({ error: 'Error interno al procesar el audio' }, { status: 500 });
   }
 }

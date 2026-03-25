@@ -1,62 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { partituras } from '@/db/schema';
-import { join, extname, basename } from 'path';
-import { writeFile, mkdir } from 'fs/promises';
-import { randomBytes } from 'crypto';
-import { existsSync } from 'fs';
+import { extname, basename } from 'path';
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), 'public', 'uploads');
 const SCORE_EXTENSIONS: Record<string, string> = {
-  '.pdf': 'pdf',
-  '.png': 'image', '.jpg': 'image', '.jpeg': 'image', '.webp': 'image',
-  '.sib': 'sibelius', '.mus': 'sibelius'
+  '.pdf':  'pdf',
+  '.sib':  'sibelius',
+  '.mus':  'finale',
+  '.xml':  'musicxml',
+  '.mxl':  'musicxml',
+  '.png':  'image',
+  '.jpg':  'image',
+  '.jpeg': 'image',
+  '.webp': 'image',
+};
+
+const MIME_FOR_EXT: Record<string, string> = {
+  '.pdf':  'application/pdf',
+  '.sib':  'application/octet-stream',
+  '.mus':  'application/octet-stream',
+  '.xml':  'application/xml',
+  '.mxl':  'application/vnd.recordare.musicxml',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
 };
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const files = formData.getAll('files') as File[];
-    const userId = formData.get('userId') as string | null;
+    // Accepts both single 'file' and multiple 'files'
+    const rawFiles = formData.getAll('files');
+    const singleFile = formData.get('file') as File | null;
+    const files = (rawFiles.length ? rawFiles : singleFile ? [singleFile] : []) as File[];
 
-    if (!files || files.length === 0) {
+    if (!files.length) {
       return NextResponse.json({ error: 'No se recibieron archivos' }, { status: 400 });
     }
 
-    const scoresDir = join(UPLOAD_DIR, 'scores');
-    if (!existsSync(scoresDir)) {
-      await mkdir(scoresDir, { recursive: true });
+    if (!db) {
+      return NextResponse.json({ error: 'Base de datos desconectada' }, { status: 503 });
     }
 
     const results = [];
     const errors = [];
 
-    if (!db) {
-      return NextResponse.json({ error: 'Database disconnected' }, { status: 503 });
-    }
-
     for (const file of files) {
       const ext = extname(file.name).toLowerCase();
-      const fileType = SCORE_EXTENSIONS[ext] || 'pdf';
-      const uniqueName = randomBytes(16).toString('hex') + ext;
-      const filePath = join(scoresDir, uniqueName);
-      const fileUrl = `/uploads/scores/${uniqueName}`;
+      const fileType = SCORE_EXTENSIONS[ext];
+
+      if (!fileType) {
+        errors.push({ file: file.name, error: `Formato no soportado: ${ext}` });
+        continue;
+      }
+
+      if (file.size > 30 * 1024 * 1024) {
+        errors.push({ file: file.name, error: 'Supera el límite de 30 MB' });
+        continue;
+      }
 
       try {
+        // Guarda como base64 data URL en PostgreSQL — permanente sin filesystem
         const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        await writeFile(filePath, buffer);
+        const base64 = Buffer.from(bytes).toString('base64');
+        const mime = MIME_FOR_EXT[ext] || 'application/octet-stream';
+        const dataUrl = `data:${mime};base64,${base64}`;
 
         const rawName = basename(file.name, ext);
         const cleanTitle = rawName.replace(/[-_.]+/g, ' ').replace(/\s+/g, ' ').trim();
 
         const [partitura] = await db.insert(partituras).values({
           title: cleanTitle,
-          fileUrl: fileUrl,
-          fileType: fileType,
+          fileUrl: dataUrl,
+          fileType,
           originalFilename: file.name,
           fileSizeBytes: file.size,
-          uploadedBy: userId || undefined
         }).returning();
 
         results.push(partitura);
@@ -70,11 +89,12 @@ export async function POST(req: NextRequest) {
       uploaded: results.length,
       errors: errors.length,
       partituras: results,
-      errorList: errors
+      errorList: errors,
+      message: `${results.length} partitura${results.length !== 1 ? 's' : ''} guardada${results.length !== 1 ? 's' : ''} en la base de datos ✓`,
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error('Scores batch upload error:', error);
-    return NextResponse.json({ error: 'Error interno guardando las partituras' }, { status: 500 });
+    console.error('[upload/scores]', error);
+    return NextResponse.json({ error: 'Error interno al procesar las partituras' }, { status: 500 });
   }
 }

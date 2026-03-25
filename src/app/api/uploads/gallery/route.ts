@@ -1,64 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { gallery } from '@/db/schema';
-import { join, extname, basename } from 'path';
-import { writeFile, mkdir } from 'fs/promises';
-import { randomBytes } from 'crypto';
-import { existsSync } from 'fs';
+import { extname, basename } from 'path';
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), 'public', 'uploads');
+const ALLOWED_IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const files = formData.getAll('files') as File[];
-    const category = formData.get('category') as string || 'General';
-    const userId = formData.get('userId') as string | null;
+    const rawFiles = formData.getAll('files');
+    const singleFile = formData.get('file') as File | null;
+    const files = (rawFiles.length ? rawFiles : singleFile ? [singleFile] : []) as File[];
+    const category = (formData.get('category') as string) || 'Eventos';
 
-    if (!files || files.length === 0) {
+    if (!files.length) {
       return NextResponse.json({ error: 'No se recibieron imágenes' }, { status: 400 });
     }
 
-    const imagesDir = join(UPLOAD_DIR, 'images');
-    if (!existsSync(imagesDir)) {
-      await mkdir(imagesDir, { recursive: true });
+    if (!db) {
+      return NextResponse.json({ error: 'Base de datos desconectada' }, { status: 503 });
     }
 
     const results = [];
     const errors = [];
 
-    if (!db) {
-      return NextResponse.json({ error: 'Database disconnected' }, { status: 503 });
-    }
-
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
     for (const file of files) {
-      if (!allowedMimes.includes(file.type)) {
-        errors.push({ file: file.name, error: 'Formato no soportado (solo JPG/PNG/WEBP/GIF)' });
+      const ext = extname(file.name).toLowerCase();
+
+      if (!file.type.startsWith('image/') && !ALLOWED_IMAGE_EXTS.has(ext)) {
+        errors.push({ file: file.name, error: 'Solo se aceptan imágenes (JPG/PNG/WEBP/GIF)' });
         continue;
       }
 
-      const ext = extname(file.name).toLowerCase();
-      const uniqueName = randomBytes(16).toString('hex') + ext;
-      const filePath = join(imagesDir, uniqueName);
-      const imageUrl = `/uploads/images/${uniqueName}`;
+      if (file.size > 12 * 1024 * 1024) {
+        errors.push({ file: file.name, error: 'Supera el límite de 12 MB por imagen' });
+        continue;
+      }
 
       try {
+        // Guarda como base64 data URL en PostgreSQL — permanente
         const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        await writeFile(filePath, buffer);
+        const base64 = Buffer.from(bytes).toString('base64');
+        const mime = file.type.startsWith('image/') ? file.type : `image/${ext.slice(1)}`;
+        const dataUrl = `data:${mime};base64,${base64}`;
 
         const rawName = basename(file.name, ext);
         const cleanTitle = rawName.replace(/[-_.]+/g, ' ').replace(/\s+/g, ' ').trim();
 
         const [imageRecord] = await db.insert(gallery).values({
           title: cleanTitle,
-          category: category,
-          imageUrl: imageUrl,
+          imageUrl: dataUrl,
+          category,
           originalFilename: file.name,
           fileSizeBytes: file.size,
-          uploadedBy: userId || undefined
         }).returning();
 
         results.push(imageRecord);
@@ -72,11 +66,12 @@ export async function POST(req: NextRequest) {
       uploaded: results.length,
       errors: errors.length,
       images: results,
-      errorList: errors
+      errorList: errors,
+      message: `${results.length} imagen${results.length !== 1 ? 'es' : ''} guardada${results.length !== 1 ? 's' : ''} en la base de datos ✓`,
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error('Gallery batch upload error:', error);
-    return NextResponse.json({ error: 'Error interno guardando la galería' }, { status: 500 });
+    console.error('[upload/gallery]', error);
+    return NextResponse.json({ error: 'Error interno al procesar las imágenes' }, { status: 500 });
   }
 }
