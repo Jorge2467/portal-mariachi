@@ -4,7 +4,8 @@ import { collections } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;`n  try {
+  const { id } = await params;
+  try {
     const record = await db.select().from(collections).where(eq(collections.id, id)).limit(1);
     if (!record[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(record[0]);
@@ -15,7 +16,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;`n  try {
+  const { id } = await params;
+  try {
     const body = await request.json();
     const updated = await db.update(collections).set(body).where(eq(collections.id, id)).returning();
     if (!updated[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -26,7 +28,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;`n  try {
+  const { id } = await params;
+  try {
     const deleted = await db.delete(collections).where(eq(collections.id, id)).returning();
     if (!deleted[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, deleted: deleted[0] });

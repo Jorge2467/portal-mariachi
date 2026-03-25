@@ -5,7 +5,8 @@ import { eq, and } from 'drizzle-orm';
 import * as crypto from 'crypto';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;`n  try {
+  const { id } = await params;
+  try {
     // Simulated auth token
     const fakeUserId = crypto.randomUUID(); 
 

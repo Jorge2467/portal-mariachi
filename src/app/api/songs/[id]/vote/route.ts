@@ -6,7 +6,8 @@ import { cookies } from 'next/headers';
 import * as crypto from 'crypto';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;`n  try {
+  const { id } = await params;
+  try {
     const body = await request.json();
     const score = parseInt(body.score, 10);
     if (!score || score < 1 || score > 10) {
