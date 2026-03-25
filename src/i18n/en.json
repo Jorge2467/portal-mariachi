@@ -13,5 +13,69 @@
     "title2": "Mariachi",
     "subtitle": "The definitive platform to digitize, preserve, and catapult Mexico's heritage music into the future.",
     "cta": "Explore Directory"
+  },
+  "repertoire": {
+    "title": "Living Repertoire",
+    "subtitle": "The legendary songbook of mariachi, digitized and scored",
+    "searchPlaceholder": "Search song or composer...",
+    "allStyles": "All styles",
+    "filters": {
+      "newest": "Newest",
+      "rating": "Best rated",
+      "title": "A → Z"
+    },
+    "badge": "Endorsed",
+    "viewAll": "View Full Catalog"
+  },
+  "academia": {
+    "title": "Mariachi Masters",
+    "subtitle": "Learn from the best. Online courses, masterclasses and certifications.",
+    "free": "FREE",
+    "enroll": "Enroll Now",
+    "lessons": "lessons",
+    "viewAll": "View All Courses"
+  },
+  "directory": {
+    "title": "Global Directory",
+    "subtitle": "Find the best verified mariachi groups in your city.",
+    "searchPlaceholder": "Search group name...",
+    "register": "Register My Group",
+    "viewProfile": "View Full Profile",
+    "members": "members"
+  },
+  "anuncios": {
+    "title": "The Marketplace",
+    "subtitle": "Buy, sell, find jobs and advertise services in the mariachi community.",
+    "publish": "Publish Ad",
+    "categories": {
+      "servicios": "Services",
+      "empleo": "Employment",
+      "instrumentos": "Instruments",
+      "general": "General"
+    }
+  },
+  "blog": {
+    "title": "The Universal Papyrus",
+    "subtitle": "Historical chronicles, techniques and cultural heritage of mariachi.",
+    "readMore": "Read Full Article",
+    "viewAll": "View All Articles"
+  },
+  "dashboard": {
+    "title": "My Dashboard",
+    "welcome": "Welcome back",
+    "stats": {
+      "songs": "Songs",
+      "mariachis": "Mariachis",
+      "courses": "Courses",
+      "posts": "Articles"
+    }
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Register",
+    "logout": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name"
   }
 }

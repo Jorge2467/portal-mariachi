@@ -1,6 +1,7 @@
 import { db } from '@/db';
-import { mariachiDirectory, anuncios, blogCorrections } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { mariachiDirectory, anuncios, blogCorrections, courses } from '@/db/schema';
+import { eq, desc } from 'drizzle-orm';
+import CursosAdmin from '@/components/ui/CursosAdmin';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { redirect } from 'next/navigation';
@@ -32,6 +33,7 @@ export default async function AdminDashboardPage() {
   const pendingMariachis = await db.select().from(mariachiDirectory).where(eq(mariachiDirectory.status, 'pending'));
   const pendingAnuncios = await db.select().from(anuncios).where(eq(anuncios.status, 'pending'));
   const pendingCorrections = await db.select().from(blogCorrections).where(eq(blogCorrections.adminStatus, 'pending'));
+  const allCourses = await db.select().from(courses).orderBy(desc(courses.createdAt));
 
   return (
     <div className="max-w-6xl mx-auto space-y-12">
@@ -144,6 +146,15 @@ export default async function AdminDashboardPage() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* CURSOS MANAGEMENT */}
+        <section className="col-span-1 xl:col-span-2 bg-neutral-900 border border-neutral-800 rounded-3xl p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <span className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></span>
+            <h2 className="text-xl font-syne font-bold">Gestión de Cursos ({allCourses.length})</h2>
+          </div>
+          <CursosAdmin initialCourses={allCourses as any} />
         </section>
 
       </div>

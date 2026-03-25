@@ -4,8 +4,8 @@
     "directory": "Directorio",
     "audios": "Audios",
     "scores": "Partituras",
-    "blog": "Papiro",
-    "login": "Ingresar",
+    "blog": "Crónicas",
+    "login": "Iniciar Sesión",
     "dashboard": "Panel"
   },
   "hero": {
@@ -13,5 +13,69 @@
     "title2": "Mariachi",
     "subtitle": "La plataforma definitiva para digitalizar, preservar y catapultar la música patrimonial de México al futuro.",
     "cta": "Explorar Directorio"
+  },
+  "repertoire": {
+    "title": "Repertorio Vivo",
+    "subtitle": "El cancionero legendario del mariachi, digitalizado y puntuado",
+    "searchPlaceholder": "Buscar canción o compositor...",
+    "allStyles": "Todos los estilos",
+    "filters": {
+      "newest": "Más recientes",
+      "rating": "Mejor valorados",
+      "title": "A → Z"
+    },
+    "badge": "Avalado",
+    "viewAll": "Ver Catálogo Completo"
+  },
+  "academia": {
+    "title": "Maestros del Mariachi",
+    "subtitle": "Aprende de los mejores. Cursos en línea, masterclasses y certificaciones.",
+    "free": "GRATIS",
+    "enroll": "Inscribirse",
+    "lessons": "lecciones",
+    "viewAll": "Ver Todos los Cursos"
+  },
+  "directory": {
+    "title": "Directorio Global",
+    "subtitle": "Encuentra las mejores agrupaciones mariachis verificadas en tu ciudad.",
+    "searchPlaceholder": "Buscar nombre del grupo...",
+    "register": "Inscribir mi Grupo",
+    "viewProfile": "Ver Perfil Completo",
+    "members": "integrantes"
+  },
+  "anuncios": {
+    "title": "El Mercado",
+    "subtitle": "Compra, vende, busca empleo y anuncia servicios en la comunidad mariachi.",
+    "publish": "Publicar Anuncio",
+    "categories": {
+      "servicios": "Servicios",
+      "empleo": "Empleo",
+      "instrumentos": "Instrumentos",
+      "general": "General"
+    }
+  },
+  "blog": {
+    "title": "El Papiro Universal",
+    "subtitle": "Crónicas históricas, técnicas y patrimonio cultural del mariachi.",
+    "readMore": "Leer Artículo Completo",
+    "viewAll": "Ver Todos los Artículos"
+  },
+  "dashboard": {
+    "title": "Mi Panel",
+    "welcome": "Bienvenido de vuelta",
+    "stats": {
+      "songs": "Canciones",
+      "mariachis": "Mariachis",
+      "courses": "Cursos",
+      "posts": "Artículos"
+    }
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar Sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre Completo"
   }
 }

@@ -4,7 +4,7 @@
     "directory": "Diretório",
     "audios": "Áudios",
     "scores": "Partituras",
-    "blog": "Crônicas",
+    "blog": "Crónicas",
     "login": "Entrar",
     "dashboard": "Painel"
   },
@@ -13,5 +13,69 @@
     "title2": "Mariachi",
     "subtitle": "A plataforma definitiva para digitalizar, preservar e catapultar a música patrimonial do México para o futuro.",
     "cta": "Explorar Diretório"
+  },
+  "repertoire": {
+    "title": "Repertório Vivo",
+    "subtitle": "O cancioneiro lendário do mariachi, digitalizado e pontuado",
+    "searchPlaceholder": "Pesquisar canção ou compositor...",
+    "allStyles": "Todos os estilos",
+    "filters": {
+      "newest": "Mais recentes",
+      "rating": "Melhor avaliados",
+      "title": "A → Z"
+    },
+    "badge": "Aprovado",
+    "viewAll": "Ver Catálogo Completo"
+  },
+  "academia": {
+    "title": "Mestres do Mariachi",
+    "subtitle": "Aprenda com os melhores. Cursos online, masterclasses e certificações.",
+    "free": "GRÁTIS",
+    "enroll": "Inscrever-se",
+    "lessons": "lições",
+    "viewAll": "Ver Todos os Cursos"
+  },
+  "directory": {
+    "title": "Diretório Global",
+    "subtitle": "Encontre os melhores grupos de mariachi verificados na sua cidade.",
+    "searchPlaceholder": "Pesquisar nome do grupo...",
+    "register": "Registar o Meu Grupo",
+    "viewProfile": "Ver Perfil Completo",
+    "members": "integrantes"
+  },
+  "anuncios": {
+    "title": "O Mercado",
+    "subtitle": "Compre, venda, procure emprego e anuncie serviços na comunidade mariachi.",
+    "publish": "Publicar Anúncio",
+    "categories": {
+      "servicios": "Serviços",
+      "empleo": "Emprego",
+      "instrumentos": "Instrumentos",
+      "general": "Geral"
+    }
+  },
+  "blog": {
+    "title": "O Papiro Universal",
+    "subtitle": "Crónicas históricas, técnicas e património cultural do mariachi.",
+    "readMore": "Ler Artigo Completo",
+    "viewAll": "Ver Todos os Artigos"
+  },
+  "dashboard": {
+    "title": "O Meu Painel",
+    "welcome": "Bem-vindo de volta",
+    "stats": {
+      "songs": "Canções",
+      "mariachis": "Mariachis",
+      "courses": "Cursos",
+      "posts": "Artigos"
+    }
+  },
+  "auth": {
+    "login": "Iniciar Sessão",
+    "register": "Registar",
+    "logout": "Terminar Sessão",
+    "email": "E-mail",
+    "password": "Palavra-passe",
+    "name": "Nome Completo"
   }
 }

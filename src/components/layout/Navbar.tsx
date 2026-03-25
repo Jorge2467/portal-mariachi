@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import Link from 'next/link';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Search } from 'lucide-react';
 import AuthModal from '@/components/auth/AuthModal';
 import LanguageSelector from './LanguageSelector';
 import es from '@/i18n/es.json';
@@ -86,6 +86,13 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
             
             <div className="flex items-center gap-4 border-l border-white/10 pl-6">
               <LanguageSelector />
+              <button
+                onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))}
+                className="p-2 rounded-full border border-white/10 text-neutral-400 hover:text-white hover:border-white/30 transition-colors"
+                title="Búsqueda global (Cmd+K)"
+              >
+                <Search size={16} />
+              </button>
               {isLoggedIn ? (
                 <Link 
                   href="/dashboard"
