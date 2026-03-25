@@ -4,27 +4,27 @@ import { favorites } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import * as crypto from 'crypto';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-  try {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;`n  try {
     // Simulated auth token
     const fakeUserId = crypto.randomUUID(); 
 
     // Check if favorite exists
     const existing = await db.select()
       .from(favorites)
-      .where(and(eq(favorites.userId, fakeUserId), eq(favorites.songId, params.id)))
+      .where(and(eq(favorites.userId, fakeUserId), eq(favorites.songId, id)))
       .limit(1);
 
     if (existing.length > 0) {
       // Toggle OFF: Remove favorite
       await db.delete(favorites)
-        .where(and(eq(favorites.userId, fakeUserId), eq(favorites.songId, params.id)));
+        .where(and(eq(favorites.userId, fakeUserId), eq(favorites.songId, id)));
       return NextResponse.json({ success: true, favorited: false, message: 'Removed from favorites' });
     } else {
       // Toggle ON: Add favorite
       await db.insert(favorites).values({
         userId: fakeUserId,
-        songId: params.id,
+        songId: id,
       });
       return NextResponse.json({ success: true, favorited: true, message: 'Added to favorites' }, { status: 201 });
     }

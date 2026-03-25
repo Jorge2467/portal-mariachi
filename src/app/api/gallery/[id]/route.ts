@@ -3,9 +3,9 @@ import { db } from '@/db';
 import { gallery } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  try {
-    const record = await db.select().from(gallery).where(eq(gallery.id, params.id)).limit(1);
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;`n  try {
+    const record = await db.select().from(gallery).where(eq(gallery.id, id)).limit(1);
     if (!record[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(record[0]);
   } catch (error) {
@@ -14,10 +14,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
-  try {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;`n  try {
     const body = await request.json();
-    const updated = await db.update(gallery).set(body).where(eq(gallery.id, params.id)).returning();
+    const updated = await db.update(gallery).set(body).where(eq(gallery.id, id)).returning();
     if (!updated[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(updated[0]);
   } catch (error) {
@@ -25,9 +25,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  try {
-    const deleted = await db.delete(gallery).where(eq(gallery.id, params.id)).returning();
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;`n  try {
+    const deleted = await db.delete(gallery).where(eq(gallery.id, id)).returning();
     if (!deleted[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, deleted: deleted[0] });
   } catch (error) {

@@ -5,8 +5,8 @@ import { eq, sql } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import * as crypto from 'crypto';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-  try {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;`n  try {
     const body = await request.json();
     const score = parseInt(body.score, 10);
     if (!score || score < 1 || score > 10) {
@@ -19,7 +19,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     // Insert vote
     await db.insert(songVotes).values({
-      songId: params.id,
+      songId: id,
       userId: fakeUserId,
       score: score
     });
@@ -27,7 +27,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     // Update song average (very basic simulation, typically done via trigger or background job)
     await db.update(songs)
       .set({ voteCount: sql`COALESCE(vote_count, 0) + 1` })
-      .where(eq(songs.id, params.id));
+      .where(eq(songs.id, id));
 
     return NextResponse.json({ success: true, message: 'Vote registered' }, { status: 201 });
   } catch (error) {
