@@ -28,7 +28,7 @@ export async function uploadToR2(
   const uniqueKey = `${folder}/${randomBytes(16).toString('hex')}${ext}`;
 
   const bytes = file instanceof File ? await file.arrayBuffer() : file;
-  const body = Buffer.from(bytes);
+  const body = file instanceof File ? Buffer.from(new Uint8Array(bytes as ArrayBuffer)) : (bytes as Buffer);
 
   await r2.send(new PutObjectCommand({
     Bucket: BUCKET,
