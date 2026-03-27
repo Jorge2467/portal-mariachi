@@ -94,21 +94,39 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
                 <Search size={16} />
               </button>
               {isLoggedIn ? (
-                <Link 
-                  href="/dashboard"
-                  className="flex items-center gap-2 border border-gold-primary/40 text-gold-primary rounded-full px-4 py-2 text-sm hover:bg-gold-primary/10 transition-colors"
-                >
-                  <User size={16} />
-                  <span>{dict.nav.dashboard}</span>
-                </Link>
+                <>
+                  <Link 
+                    href="/dashboard"
+                    className="flex items-center gap-2 border border-gold-primary/40 text-gold-primary rounded-full px-4 py-2 text-sm hover:bg-gold-primary/10 transition-colors"
+                  >
+                    <User size={16} />
+                    <span>{dict.nav.dashboard}</span>
+                  </Link>
+                  <Link 
+                    href="/dashboard"
+                    className="flex items-center gap-2 bg-gradient-to-r from-gold-primary to-yellow-500 text-black font-bold rounded-full px-4 py-2 text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                  >
+                    <span className="text-lg leading-none -mt-0.5">＋</span>
+                    <span>Publicar</span>
+                  </Link>
+                </>
               ) : (
-                <button 
-                  onClick={() => { setAuthView('login'); setIsAuthOpen(true); }}
-                  className="flex items-center gap-2 border border-white/20 rounded-full px-4 py-2 text-sm hover:bg-white/5 transition-colors"
-                >
-                  <User size={16} />
-                  <span>{dict.nav.login}</span>
-                </button>
+                <>
+                  <button 
+                    onClick={() => { setAuthView('login'); setIsAuthOpen(true); }}
+                    className="flex items-center gap-2 border border-white/20 rounded-full px-4 py-2 text-sm hover:bg-white/5 transition-colors"
+                  >
+                    <User size={16} />
+                    <span>{dict.nav.login}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setAuthView('register'); setIsAuthOpen(true); }}
+                    className="flex items-center gap-2 bg-gradient-to-r from-gold-primary to-yellow-500 text-black font-bold rounded-full px-4 py-2 text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                  >
+                    <span className="text-lg leading-none -mt-0.5">＋</span>
+                    <span>Unirse / Subir</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -146,26 +164,41 @@ export default function Navbar({ isLoggedIn = false, lang = 'es' }: { isLoggedIn
           ))}
           <div className="h-px bg-white/10 w-full my-4" />
           {isLoggedIn ? (
-            <Link 
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-left text-gold-primary hover:text-gold-light focus:outline-none"
-            >
-              <span className="flex items-center gap-3">
+            <div className="flex flex-col gap-4 mt-2">
+              <Link 
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-left text-gold-primary hover:text-gold-light focus:outline-none flex items-center gap-3"
+              >
                 <User size={24} />
                 {dict.nav.dashboard}
-              </span>
-            </Link>
+              </Link>
+              <Link 
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 bg-gold-primary/20 text-gold-primary px-4 py-3 rounded-xl hover:bg-gold-primary/30 transition-colors w-fit"
+              >
+                <span className="text-2xl leading-none">＋</span>
+                <span className="font-bold">Publicar Mariachi o Audio</span>
+              </Link>
+            </div>
           ) : (
-            <button 
-              onClick={() => { setMobileMenuOpen(false); setAuthView('login'); setIsAuthOpen(true); }}
-              className="text-left hover:text-gold-primary focus:outline-none"
-            >
-              <span className="flex items-center gap-3">
+            <div className="flex flex-col gap-4 mt-2">
+              <button 
+                onClick={() => { setMobileMenuOpen(false); setAuthView('login'); setIsAuthOpen(true); }}
+                className="text-left hover:text-gold-primary focus:outline-none flex items-center gap-3"
+              >
                 <User size={24} />
                 {dict.nav.login}
-              </span>
-            </button>
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); setAuthView('register'); setIsAuthOpen(true); }}
+                className="flex items-center gap-3 bg-gold-primary text-black px-4 py-3 rounded-xl hover:opacity-90 font-bold transition-opacity w-fit shadow-lg shadow-gold-primary/20"
+              >
+                <span className="text-2xl leading-none">＋</span>
+                <span>Unirse y Subir Material</span>
+              </button>
+            </div>
           )}
         </div>
       </motion.div>

@@ -108,6 +108,7 @@ export default async function DashboardPage() {
           <h2 className="text-2xl font-syne font-bold mb-6">Acceso Rápido</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
+              { href: '/dashboard/marketing', icon: '🚀', label: 'Estudio Viral' },
               { href: '/dashboard/perfil', icon: '👤', label: 'Mi Perfil' },
               { href: '/dashboard/explorador', icon: '🎵', label: 'Explorador' },
               { href: '/dashboard/repertorio', icon: '📋', label: 'Repertorio' },

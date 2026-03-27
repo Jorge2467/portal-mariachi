@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Content Studio — OmniAgent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#03030a;--ink:#07070f;--panel:#0c0c1a;--lift:#111128;--card:#131326;
+  --border:#1c1c3a;--border2:#252545;--accent:#00e5ff;--accent2:#7c3aed;
+  --green:#00ff88;--gold:#f59e0b;--rose:#f43f5e;--violet:#a78bfa;
+  --wa:#25d366;--tg:#229ed9;--text:#e8eaf6;--muted:#6b6b9a;--dim:#9898c0;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --glow-accent:0 0 40px rgba(0,229,255,0.15);
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+.header{position:sticky;top:0;z-index:100;background:rgba(7,7,15,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.header-brand{display:flex;align-items:center;gap:14px}
+.brand-name{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.05em}
+.breadcrumb{font-family:var(--font-mono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.breadcrumb span{color:var(--dim)}
+.header-actions{display:flex;gap:8px;align-items:center}
+.btn-sm{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;font-family:var(--font-mono);cursor:pointer;border:none;transition:all 0.2s}
+.btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted)}
+.btn-accent{background:var(--accent);color:#000;font-weight:800}
+.btn-accent:hover{background:#fff;box-shadow:var(--glow-accent);transform:translateY(-1px)}
+.layout{display:grid;grid-template-columns:400px 1fr;min-height:calc(100vh - 56px)}
+.left-panel{background:var(--ink);border-right:1px solid var(--border);padding:22px 20px 32px;overflow-y:auto;max-height:calc(100vh - 56px);position:sticky;top:56px}
+.section-title{font-family:var(--font-display);font-size:26px;letter-spacing:0.06em;line-height:1;margin-bottom:3px}
+.section-sub{font-size:10px;color:var(--muted);font-family:var(--font-mono);margin-bottom:20px}
+.label{font-size:9px;font-weight:700;font-family:var(--font-mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:9px;display:block}
+.platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:20px}
+.platform-btn{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:9px 5px;cursor:pointer;text-align:center;transition:all 0.2s}
+.platform-btn:hover{border-color:var(--border2);transform:translateY(-1px)}
+.platform-btn.active{border-color:var(--accent);background:rgba(0,229,255,0.06)}
+.platform-icon{font-size:17px;margin-bottom:3px}
+.platform-name{font-size:8px;font-family:var(--font-mono);font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em}
+.platform-btn.active .platform-name{color:var(--accent)}
+.form-group{margin-bottom:16px}
+.input,.textarea,.select{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:var(--font-body);font-size:12px;outline:none;transition:all 0.2s;appearance:none}
+.input::placeholder,.textarea::placeholder{color:var(--muted)}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,0.08)}
+.textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field-footer{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.char-count{font-size:9px;font-family:var(--font-mono);color:var(--muted)}
+.tone-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px}
+.tone-pill{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--font-mono);cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--dim);transition:all 0.15s}
+.tone-pill:hover{color:var(--text);border-color:var(--muted)}
+.tone-pill.active[data-tone="profesional"]{background:rgba(0,229,255,0.12);color:var(--accent);border-color:rgba(0,229,255,0.4)}
+.tone-pill.active[data-tone="viral"]{background:rgba(244,63,94,0.12);color:var(--rose);border-color:rgba(244,63,94,0.4)}
+.tone-pill.active[data-tone="educativo"]{background:rgba(0,255,136,0.12);color:var(--green);border-color:rgba(0,255,136,0.4)}
+.tone-pill.active[data-tone="humano"]{background:rgba(167,139,250,0.12);color:var(--violet);border-color:rgba(167,139,250,0.4)}
+.tone-pill.active[data-tone="audaz"]{background:rgba(245,158,11,0.12);color:var(--gold);border-color:rgba(245,158,11,0.4)}
+.tone-pill.active[data-tone="minimalista"]{background:rgba(107,107,154,0.12);color:var(--dim);border-color:rgba(107,107,154,0.4)}
+.count-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.count-btn{width:30px;height:30px;border-radius:7px;background:var(--panel);border:1px solid var(--border2);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.count-btn:hover{background:var(--lift);border-color:var(--accent);color:var(--accent)}
+.count-display{font-family:var(--font-display);font-size:26px;color:var(--accent);min-width:36px;text-align:center}
+.count-label{font-size:10px;color:var(--muted)}
+.divider{height:1px;background:var(--border);margin:18px 0}
+/* Bot Section */
+.bot-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bot-section-title{font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em}
+.bot-badge{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border-radius:10px;font-weight:700}
+.bot-badge.wa{background:rgba(37,211,102,0.15);color:var(--wa);border:1px solid rgba(37,211,102,0.3)}
+.bot-badge.tg{background:rgba(34,158,217,0.15);color:var(--tg);border:1px solid rgba(34,158,217,0.3)}
+.bot-tabs{display:flex;gap:6px;margin-bottom:14px}
+.bot-tab{flex:1;padding:7px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--panel);font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--muted);transition:all 0.2s}
+.bot-tab:hover{border-color:var(--border2);color:var(--dim)}
+.bot-tab.active-wa{border-color:rgba(37,211,102,0.5);color:var(--wa);background:rgba(37,211,102,0.07)}
+.bot-tab.active-tg{border-color:rgba(34,158,217,0.5);color:var(--tg);background:rgba(34,158,217,0.07)}
+.bot-dot{width:6px;height:6px;border-radius:50%}
+.bot-dot.wa{background:var(--wa);box-shadow:0 0 6px var(--wa)}
+.bot-dot.tg{background:var(--tg);box-shadow:0 0 6px var(--tg)}
+.bot-cmd-box{background:var(--void);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:none}
+.bot-cmd-box.visible{display:block}
+.cmd-line{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 10px;border-radius:7px;background:var(--panel);border:1px solid var(--border)}
+.cmd-line:last-child{margin-bottom:0}
+.cmd-icon{font-size:13px;flex-shrink:0}
+.cmd-text{font-family:var(--font-mono);font-size:10px}
+.cmd-name{color:var(--accent);font-weight:700}
+.cmd-desc{color:var(--muted);font-size:9px;margin-top:1px}
+.cmd-arrow{margin-left:auto;font-family:var(--font-mono);font-size:8px;color:var(--muted)}
+.drop-zone{border:2px dashed var(--border2);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:all 0.25s;background:var(--panel);position:relative;overflow:hidden;margin-bottom:16px}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(0,229,255,0.04)}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:26px;margin-bottom:6px;opacity:0.5}
+.drop-title{font-size:11px;font-weight:700;color:var(--dim);margin-bottom:3px}
+.drop-sub{font-size:9px;color:var(--muted);font-family:var(--font-mono)}
+.drop-formats{display:flex;justify-content:center;gap:5px;margin-top:8px;flex-wrap:wrap}
+.fmt-tag{padding:2px 8px;border-radius:4px;font-size:8px;font-family:var(--font-mono);font-weight:700;background:var(--lift);color:var(--muted);border:1px solid var(--border)}
+.media-thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.media-thumb{width:68px;height:68px;border-radius:9px;background:var(--panel);border:1px solid var(--border);overflow:hidden;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.2s}
+.media-thumb:hover{border-color:var(--accent);transform:scale(1.04)}
+.media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover}
+.media-thumb .remove-media{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(244,63,94,0.9);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700;border:none;opacity:0;transition:opacity 0.2s}
+.media-thumb:hover .remove-media{opacity:1}
+.media-thumb .media-type-badge{position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,0.7);padding:1px 5px;border-radius:4px;font-size:7px;font-family:var(--font-mono);color:var(--accent);font-weight:700}
+.bot-inbox{margin-bottom:12px}
+.inbox-item{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;background:var(--panel);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.2s}
+.inbox-item:hover{border-color:var(--border2);background:var(--lift)}
+.inbox-item.selected{border-color:var(--accent);background:rgba(0,229,255,0.05)}
+.inbox-thumb{width:38px;height:38px;border-radius:7px;flex-shrink:0;background:var(--lift);overflow:hidden}
+.inbox-thumb img{width:100%;height:100%;object-fit:cover}
+.inbox-info{flex:1;min-width:0}
+.inbox-name{font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox-meta{font-size:8px;color:var(--muted);font-family:var(--font-mono);display:flex;gap:6px;margin-top:1px}
+.inbox-source{display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:8px}
+.inbox-source.wa{color:var(--wa)}
+.inbox-source.tg{color:var(--tg)}
+.inbox-check{width:18px;height:18px;border-radius:5px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all 0.15s}
+.inbox-item.selected .inbox-check{background:var(--accent);border-color:var(--accent);color:#000}
+.inbox-empty{text-align:center;padding:16px;font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+.btn-generate{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:11px;color:#fff;font-size:13px;font-weight:800;font-family:var(--font-mono);cursor:pointer;letter-spacing:0.05em;transition:all 0.25s;position:relative;overflow:hidden}
+.btn-generate::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.12),transparent);transform:translateX(-100%);transition:transform 0.5s}
+.btn-generate:hover::before{transform:translateX(100%)}
+.btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,0.4)}
+.btn-generate:active{transform:translateY(0)}
+.btn-generate:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+/* Right Panel */
+.right-panel{padding:24px;background:var(--void);overflow-y:auto}
+.empty-state{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
+.empty-icon{font-size:56px;margin-bottom:18px;opacity:0.25;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.empty-title{font-family:var(--font-display);font-size:34px;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px}
+.empty-sub{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.loading-state{display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px;text-align:center}
+.loading-state.active{display:flex}
+.loader-ring{width:68px;height:68px;border:3px solid var(--border);border-top-color:var(--accent);border-right-color:var(--accent2);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:22px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-title{font-family:var(--font-display);font-size:30px;letter-spacing:0.06em;margin-bottom:4px}
+.loader-sub{font-size:10px;color:var(--muted);font-family:var(--font-mono);margin-bottom:20px}
+.loader-steps{display:flex;flex-direction:column;gap:6px}
+.loader-step{display:flex;align-items:center;gap:10px;font-size:10px;font-family:var(--font-mono);color:var(--muted);padding:5px 13px;border-radius:6px;transition:all 0.3s}
+.loader-step.active{color:var(--accent);background:rgba(0,229,255,0.06)}
+.loader-step.done{color:var(--green)}
+.step-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:all 0.3s}
+.loader-step.active .step-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.loader-step.done .step-dot{background:var(--green)}
+/* Results */
+.results-state{display:none}
+.results-state.active{display:block}
+.results-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.results-title{font-family:var(--font-display);font-size:40px;letter-spacing:0.06em;line-height:1;color:var(--text)}
+.results-meta{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-align:right}
+.results-meta span span{color:var(--green)}
+.summary-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.summary-chip{font-family:var(--font-mono);font-size:9px;padding:4px 10px;border-radius:6px;background:var(--panel);border:1px solid var(--border);color:var(--dim)}
+.summary-chip b{color:var(--accent)}
+.posts-grid{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.post-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;animation:slideIn 0.4s ease both;transition:all 0.2s}
+@keyframes slideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.post-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.post-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.post-number{font-family:var(--font-display);font-size:22px;letter-spacing:0.08em;color:var(--muted)}
+.post-badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{padding:3px 8px;border-radius:5px;font-size:8px;font-family:var(--font-mono);font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.badge-platform{background:rgba(0,229,255,0.1);color:var(--accent);border:1px solid rgba(0,229,255,0.25)}
+.badge-tone{background:rgba(124,58,237,0.1);color:var(--violet);border:1px solid rgba(124,58,237,0.25)}
+.badge-hook{background:rgba(245,158,11,0.1);color:var(--gold);border:1px solid rgba(245,158,11,0.25)}
+.badge-media{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.25)}
+.score-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.score-label{font-family:var(--font-mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap}
+.score-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;transition:width 0.8s ease}
+.score-value{font-family:var(--font-display);font-size:22px;letter-spacing:0.06em}
+.post-media-preview{position:relative;border-radius:10px;overflow:hidden;margin-bottom:14px;max-height:200px}
+.post-media-preview img,.post-media-preview video{width:100%;height:200px;object-fit:cover}
+.media-overlay{position:absolute;bottom:0;left:0;right:0;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,0.7));font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.8)}
+.post-body{margin-bottom:14px}
+.post-hook{font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:10px}
+.post-content{font-size:12px;color:var(--dim);line-height:1.7;white-space:pre-wrap}
+.hashtag{color:var(--accent);font-weight:600}
+.arrow{color:var(--accent)}
+.post-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.post-stats{display:flex;gap:14px}
+.stat-item{font-family:var(--font-mono);font-size:9px;color:var(--muted)}
+.stat-value{color:var(--text);font-weight:700;margin-left:4px}
+.post-actions{display:flex;gap:6px}
+.action-btn{padding:5px 12px;border-radius:6px;font-size:10px;font-family:var(--font-mono);font-weight:700;cursor:pointer;border:none;transition:all 0.15s}
+.copy-btn{background:var(--panel);color:var(--dim);border:1px solid var(--border)}
+.copy-btn:hover{color:var(--text);border-color:var(--border2)}
+.save-btn{background:rgba(0,229,255,0.1);color:var(--accent);border:1px solid rgba(0,229,255,0.25)}
+.save-btn:hover{background:rgba(0,229,255,0.18)}
+.regen-bar{display:flex;gap:8px;justify-content:center}
+.btn-regen,.btn-regen-all{padding:8px 20px;border-radius:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all 0.2s}
+.btn-regen{background:var(--panel);color:var(--dim);border:1px solid var(--border)}
+.btn-regen:hover{color:var(--text);border-color:var(--border2)}
+.btn-regen-all{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}
+.btn-regen-all:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,58,237,0.4)}
+.toast{position:fixed;bottom:30px;right:30px;padding:10px 20px;border-radius:10px;font-family:var(--font-mono);font-size:12px;font-weight:700;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="brand-name">⚡ OMNIAGENT</div>
+    <div class="breadcrumb">Dashboard <span>/</span> Social Content Studio</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-sm btn-ghost">📁 Mis drafts</button>
+    <button class="btn-sm btn-ghost">📊 Analytics</button>
+    <button class="btn-sm btn-accent">✦ OmniMind</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <div class="left-panel">
+    <div class="section-title">CONTENT<br>STUDIO</div>
+    <div class="section-sub">// genera · itera · publica</div>
+
+    <label class="label">Plataforma</label>
+    <div class="platform-grid">
+      <button class="platform-btn active" data-platform="instagram" onclick="selectPlatform(this)">
+        <div class="platform-icon">📸</div><div class="platform-name">Instagram</div>
+      </button>
+      <button class="platform-btn" data-platform="linkedin" onclick="selectPlatform(this)">
+        <div class="platform-icon">💼</div><div class="platform-name">LinkedIn</div>
+      </button>
+      <button class="platform-btn" data-platform="twitter" onclick="selectPlatform(this)">
+        <div class="platform-icon">𝕏</div><div class="platform-name">Twitter/X</div>
+      </button>
+      <button class="platform-btn" data-platform="tiktok" onclick="selectPlatform(this)">
+        <div class="platform-icon">🎵</div><div class="platform-name">TikTok</div>
+      </button>
+      <button class="platform-btn" data-platform="facebook" onclick="selectPlatform(this)">
+        <div class="platform-icon">👥</div><div class="platform-name">Facebook</div>
+      </button>
+      <button class="platform-btn" data-platform="threads" onclick="selectPlatform(this)">
+        <div class="platform-icon">🧵</div><div class="platform-name">Threads</div>
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label class="label">Marca / Empresa</label>
+      <input type="text" class="input" id="brand" placeholder="ej: OmniAgentSys">
+    </div>
+
+    <div class="form-group">
+      <label class="label">Tema del contenido</label>
+      <textarea class="textarea" id="topic" placeholder="ej: Lanzamos la integración WhatsApp para empresas LATAM..."></textarea>
+      <div class="field-footer">
+        <div></div>
+        <div class="char-count" id="charCount">0 / 500</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="label">Audiencia objetivo</label>
+      <input type="text" class="input" id="audience" placeholder="ej: Emprendedores B2B, 28-45 años, LATAM">
+    </div>
+
+    <label class="label">Tono</label>
+    <div class="tone-grid">
+      <button class="tone-pill active" data-tone="profesional" onclick="selectTone(this)">Profesional</button>
+      <button class="tone-pill" data-tone="viral"       onclick="selectTone(this)">Viral</button>
+      <button class="tone-pill" data-tone="educativo"   onclick="selectTone(this)">Educativo</button>
+      <button class="tone-pill" data-tone="humano"      onclick="selectTone(this)">Humano</button>
+      <button class="tone-pill" data-tone="audaz"       onclick="selectTone(this)">Audaz</button>
+      <button class="tone-pill" data-tone="minimalista" onclick="selectTone(this)">Minimalista</button>
+    </div>
+
+    <label class="label">Variaciones a generar</label>
+    <div class="count-row">
+      <button class="count-btn" onclick="changeCount(-1)">−</button>
+      <div class="count-display" id="countDisplay">3</div>
+      <button class="count-btn" onclick="changeCount(1)">+</button>
+      <div class="count-label">posts<br>distintos</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="bot-section-header">
+      <div class="bot-section-title">📎 Media desde bots</div>
+      <div style="display:flex;gap:4px;">
+        <span class="bot-badge wa">WhatsApp</span>
+        <span class="bot-badge tg">Telegram</span>
+      </div>
+    </div>
+
+    <div class="bot-tabs">
+      <button class="bot-tab active-wa" id="tabWa" onclick="switchBotTab('wa')">
+        <div class="bot-dot wa"></div> WhatsApp
+      </button>
+      <button class="bot-tab" id="tabTg" onclick="switchBotTab('tg')">
+        <div class="bot-dot tg"></div> Telegram
+      </button>
+      <button class="bot-tab" id="tabUpload" onclick="switchBotTab('upload')" style="color:var(--muted)">
+        📁 Local
+      </button>
+    </div>
+
+    <div class="bot-cmd-box visible" id="cmdWa">
+      <div style="font-family:var(--font-mono);font-size:8px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Comandos disponibles</div>
+      <div class="cmd-line">
+        <div class="cmd-icon">🖼</div>
+        <div><div class="cmd-text"><span class="cmd-name">envía imagen</span> al bot</div><div class="cmd-desc">Acepta JPG, PNG, WEBP · máx 10MB</div></div>
+        <div class="cmd-arrow">→ studio</div>
+      </div>
+      <div class="cmd-line">
+        <div class="cmd-icon">🎥</div>
+        <div><div class="cmd-text"><span class="cmd-name">envía video</span> al bot</div><div class="cmd-desc">Acepta MP4, MOV · máx 50MB</div></div>
+        <div class="cmd-arrow">→ studio</div>
+      </div>
+      <div class="cmd-line">
+        <div class="cmd-icon">💬</div>
+        <div><div class="cmd-text"><span class="cmd-name">/contenido</span> [descripción]</div><div class="cmd-desc">Genera post con el media adjunto</div></div>
+        <div class="cmd-arrow">→ IA</div>
+      </div>
+    </div>
+
+    <div class="bot-cmd-box" id="cmdTg">
+      <div style="font-family:var(--font-mono);font-size:8px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Comandos disponibles</div>
+      <div class="cmd-line">
+        <div class="cmd-icon">📷</div>
+        <div><div class="cmd-text"><span class="cmd-name">/photo</span> + imagen</div><div class="cmd-desc">Envía foto al Content Studio</div></div>
+        <div class="cmd-arrow">→ studio</div>
+      </div>
+      <div class="cmd-line">
+        <div class="cmd-icon">🎬</div>
+        <div><div class="cmd-text"><span class="cmd-name">/video</span> + video</div><div class="cmd-desc">Envía video · hasta 50MB</div></div>
+        <div class="cmd-arrow">→ studio</div>
+      </div>
+      <div class="cmd-line">
+        <div class="cmd-icon">🤖</div>
+        <div><div class="cmd-text"><span class="cmd-name">/post</span> [tema]</div><div class="cmd-desc">Crea variaciones con el media</div></div>
+        <div class="cmd-arrow">→ IA</div>
+      </div>
+    </div>
+
+    <div class="bot-cmd-box" id="cmdUpload">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple onchange="handleFiles(this.files)">
+        <div class="drop-icon">⬆️</div>
+        <div class="drop-title">Arrastra o haz clic para subir</div>
+        <div class="drop-sub">imágenes y videos directamente</div>
+        <div class="drop-formats">
+          <span class="fmt-tag">JPG</span><span class="fmt-tag">PNG</span>
+          <span class="fmt-tag">WEBP</span><span class="fmt-tag">MP4</span>
+          <span class="fmt-tag">MOV</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bot-section-header" style="margin-top:4px;">
+      <div class="bot-section-title">📥 Media recibida</div>
+      <span id="inboxBadge" style="font-family:var(--font-mono);font-size:9px;color:var(--green);font-weight:700;">3 archivos</span>
+    </div>
+    <div class="bot-inbox" id="botInbox"></div>
+    <div id="mediaThumbs" class="media-thumbs"></div>
+
+    <div class="divider"></div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generateContent()">
+      ⚡ GENERAR CONTENIDO
+    </button>
+  </div>
+
+  <div class="right-panel" id="rightPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">✦</div>
+      <div class="empty-title">TU CONTENIDO<br>APARECE AQUÍ</div>
+      <div class="empty-sub">// configura, adjunta media y presiona generar</div>
+    </div>
+
+    <div class="loading-state" id="loadingState">
+      <div class="loader-ring"></div>
+      <div class="loader-title" id="loaderTitle">ANALIZANDO<br>BRIEF</div>
+      <div class="loader-sub" id="loaderSub">// procesando tu solicitud</div>
+      <div class="loader-steps">
+        <div class="loader-step active" data-step="0"><div class="step-dot"></div>Analizando brief y audiencia</div>
+        <div class="loader-step" data-step="1"><div class="step-dot"></div>Procesando media adjunta</div>
+        <div class="loader-step" data-step="2"><div class="step-dot"></div>Generando hooks de alto impacto</div>
+        <div class="loader-step" data-step="3"><div class="step-dot"></div>Optimizando para <span id="platformLabel">Instagram</span></div>
+        <div class="loader-step" data-step="4"><div class="step-dot"></div>Calculando engagement score</div>
+      </div>
+    </div>
+
+    <div class="results-state" id="resultsState">
+      <div class="results-header">
+        <div class="results-title" id="resultsTitle">POSTS<br>GENERADOS</div>
+        <div class="results-meta" id="resultsMeta"></div>
+      </div>
+      <div class="summary-bar" id="summaryBar"></div>
+      <div class="posts-grid" id="postsGrid"></div>
+      <div class="regen-bar">
+        <button class="btn-regen" onclick="regenOne()">↺ Regenerar 1</button>
+        <button class="btn-regen-all" onclick="generateContent()">⚡ Nuevas variaciones</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Copiado al portapapeles</div>
+
+<script>
+// State
+let platform = 'instagram';
+let tone = 'profesional';
+let count = 3;
+let uploadedMedia = [];
+let selectedInbox = new Set();
+let stepInterval;
+
+const PLATFORM_LABELS = { instagram:'Instagram', linkedin:'LinkedIn', twitter:'Twitter/X', tiktok:'TikTok', facebook:'Facebook', threads:'Threads' };
+const PLATFORM_LIMITS = { instagram:2200, linkedin:3000, twitter:280, tiktok:2200, facebook:63206, threads:500 };
+
+const BOT_INBOX_DATA = [
+  { id:'bot_001', name:'producto_hero.jpg', type:'image', source:'wa', from:'+52 55 1234', time:'hace 2m', url:'https://picsum.photos/seed/prod1/300/200' },
+  { id:'bot_002', name:'demo_video.mp4', type:'video', source:'tg', from:'@cliente_mx', time:'hace 12m', url:'https://picsum.photos/seed/vid1/300/200' },
+  { id:'bot_003', name:'banner_campana.png', type:'image', source:'wa', from:'+54 11 9876', time:'hace 38m', url:'https://picsum.photos/seed/ban1/300/200' },
+];
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderBotInbox();
+  initDropZone();
+  document.getElementById('topic').addEventListener('input', function() {
+    document.getElementById('charCount').textContent = `${this.value.length} / 500`;
+  });
+});
+
+function selectPlatform(btn) {
+  document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  platform = btn.dataset.platform;
+  document.getElementById('platformLabel').textContent = PLATFORM_LABELS[platform];
+}
+
+function selectTone(btn) {
+  document.querySelectorAll('.tone-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tone = btn.dataset.tone;
+}
+
+function changeCount(delta) {
+  count = Math.max(1, Math.min(6, count + delta));
+  document.getElementById('countDisplay').textContent = count;
+}
+
+function switchBotTab(tab) {
+  ['cmdWa','cmdTg','cmdUpload'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['tabWa','tabTg','tabUpload'].forEach(id => document.getElementById(id).className = 'bot-tab');
+  if (tab === 'wa') { document.getElementById('cmdWa').classList.add('visible'); document.getElementById('tabWa').classList.add('active-wa'); }
+  else if (tab === 'tg') { document.getElementById('cmdTg').classList.add('visible'); document.getElementById('tabTg').classList.add('active-tg'); }
+  else { document.getElementById('cmdUpload').classList.add('visible'); document.getElementById('tabUpload').style.color='var(--accent)'; }
+}
+
+function renderBotInbox() {
+  const inbox = document.getElementById('botInbox');
+  inbox.innerHTML = BOT_INBOX_DATA.map(item => `
+    <div class="inbox-item ${selectedInbox.has(item.id)?'selected':''}" onclick="toggleInboxItem('${item.id}','${item.url}','${item.type}','${item.name}')">
+      <div class="inbox-thumb"><img src="${item.url}" alt="${item.name}" onerror="this.style.display='none'"></div>
+      <div class="inbox-info">
+        <div class="inbox-name">${item.name}</div>
+        <div class="inbox-meta"><span class="inbox-source ${item.source}">${item.source==='wa'?'📱 WhatsApp':'✈️ Telegram'}</span><span>· ${item.time}</span></div>
+      </div>
+      <div class="inbox-check">${selectedInbox.has(item.id)?'✓':''}</div>
+    </div>`).join('');
+  document.getElementById('inboxBadge').textContent = `${BOT_INBOX_DATA.length} archivos`;
+}
+
+function toggleInboxItem(id, url, type, name) {
+  if (selectedInbox.has(id)) { selectedInbox.delete(id); uploadedMedia = uploadedMedia.filter(m=>m.id!==id); }
+  else { selectedInbox.add(id); uploadedMedia.push({id,url,type,name,source:'bot'}); }
+  renderBotInbox(); renderThumbs();
+}
+
+function initDropZone() {
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+}
+
+function handleFiles(files) {
+  if (!files || !files.length) return;
+  Array.from(files).forEach(file => {
+    const maxSize = file.type.startsWith('video') ? 50*1024*1024 : 10*1024*1024;
+    if (file.size > maxSize) { showToast(`❌ ${file.name} supera el límite`,'#f43f5e'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const id = 'local_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      uploadedMedia.push({id, url:e.target.result, type:file.type.startsWith('video')?'video':'image', name:file.name, source:'local'});
+      renderThumbs();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderThumbs() {
+  const c = document.getElementById('mediaThumbs');
+  if (!uploadedMedia.length) { c.innerHTML=''; return; }
+  c.innerHTML = uploadedMedia.map(m=>`
+    <div class="media-thumb" title="${m.name}">
+      ${m.type==='video'?`<video src="${m.url}" muted></video>`:`<img src="${m.url}" alt="${m.name}" onerror="this.style.background='var(--lift)'">`}
+      <div class="media-type-badge">${m.type==='video'?'▶ VID':'🖼 IMG'}</div>
+      <button class="remove-media" onclick="removeMedia('${m.id}')">✕</button>
+    </div>`).join('');
+}
+
+function removeMedia(id) { uploadedMedia=uploadedMedia.filter(m=>m.id!==id); selectedInbox.delete(id); renderThumbs(); renderBotInbox(); }
+
+const STEPS_TEXT = [['ANALIZANDO','brief y audiencia'],['PROCESANDO','media adjunta'],['GENERANDO','hooks de alto impacto'],['OPTIMIZANDO','para plataforma'],['CALCULANDO','engagement score']];
+
+function startLoader() {
+  const steps = document.querySelectorAll('.loader-step');
+  let current = 0;
+  steps.forEach(s => s.classList.remove('active','done'));
+  steps[0].classList.add('active');
+  document.getElementById('loaderTitle').innerHTML = STEPS_TEXT[0][0]+'<br>'+STEPS_TEXT[0][1].toUpperCase();
+  stepInterval = setInterval(() => {
+    if (current < steps.length-1) {
+      steps[current].classList.remove('active'); steps[current].classList.add('done');
+      current++; steps[current].classList.add('active');
+      document.getElementById('loaderTitle').innerHTML = STEPS_TEXT[current][0]+'<br>'+STEPS_TEXT[current][1].toUpperCase();
+    }
+  }, 700);
+}
+function stopLoader() { clearInterval(stepInterval); }
+
+const HOOKS = {
+  profesional:['La transformación digital no es opcional. Es tu próxima ventaja competitiva.','Lo que más nos cuesta cambiar es exactamente lo que más necesitamos cambiar.','3 años de aprendizaje comprimidos en un hilo. Empezamos →','El secreto de los equipos que escalan 3x más rápido que el mercado.','No es tecnología. Es estrategia. Aquí la diferencia:','Lo que los líderes de LATAM ya están haciendo diferente.'],
+  viral:['🚀 Lo que nadie te dice sobre esto (y debería):','POV: descubriste que tu competencia lleva 6 meses usando esto.','Hice X y los resultados me dejaron sin palabras 🧵','¿Por qué el 90% de los equipos fallan en esto? (y cómo evitarlo)','Spoiler: el problema no es el presupuesto.','Esta decisión cambió todo. Y tomó menos de 24 horas.'],
+  educativo:['¿Sabías que el 73% de los equipos falla por esto? Guía rápida:','Tutorial: Cómo implementar X en menos de 30 minutos ↓','El framework que cambió la forma en que mi equipo trabaja:','5 métricas que toda empresa LATAM debería trackear hoy:','Guía definitiva: De cero a automatizado en 7 pasos.','Lo que aprendimos después de 1,000+ implementaciones en LATAM:'],
+  humano:['Hace 2 años estaba en quiebra. Hoy te cuento qué cambió.','La conversación más honesta que he tenido con mi equipo esta semana.','No siempre tengo las respuestas. Pero esto sí lo sé:','Nadie habla de la soledad que viene con construir algo grande.','Mi mayor error del año y lo que aprendí de él.','Le pregunté a mi equipo qué haría diferente. Esto me dijeron.'],
+  audaz:['¡BASTA de hacer las cosas a la mitad! Este es el momento.','El mercado no espera. Tu siguiente movimiento es ahora o nunca.','Cometí el error más costoso de mi carrera. Y te lo cuento todo.','LATAM no necesita copiar a Silicon Valley. Necesita superarlo.','Las reglas del juego cambiaron. ¿Estás jugando el juego correcto?','Esto es lo que separa a los que construyen imperios de los que observan.'],
+  minimalista:['Una idea. Una acción. Un resultado.','Menos ruido. Más impacto.','Lo esencial no necesita explicación.','Claridad primero. Velocidad después.','Haz menos. Pero hazlo mejor.','El enfoque es el activo más escaso.'],
+};
+
+const HASHTAG_SETS = { instagram:'#IA #Emprendimiento #LATAM #Automatizacion #Negocios #Tech #Innovacion #Startup', linkedin:'#InteligenciaArtificial #Negocios #LATAM #Innovacion #Liderazgo #Estrategia', twitter:'#IA #Tech #LATAM #Startup', tiktok:'#IA #Emprendimiento #LATAM #Tech #Negocios #fyp', facebook:'#InteligenciaArtificial #Emprendimiento #LATAM #Negocios', threads:'#IA #Tech #LATAM #Negocios #Innovacion' };
+
+const BODY_TEMPLATES = ['En {brand} llevamos meses trabajando en algo que va a cambiar la forma en que los equipos trabajan en LATAM.\n\nLo que aprendimos:\n→ La velocidad importa más que la perfección\n→ El contexto regional marca la diferencia\n→ La automatización libera tiempo para lo estratégico\n\n¿Estás listo para el siguiente nivel?\n\n{hashtags}','Después de analizar más de 10,000 casos en la región:\n\nEl futuro del trabajo en LATAM no es igual al de Silicon Valley.\n\n{brand} fue construido exactamente para eso.\n\n{hashtags}','Lo que tus competidores no quieren que sepas:\n\nLos equipos que adoptan IA estratégicamente crecen 3.2x más rápido.\n\nEn {brand} lo hacemos simple:\n→ Tus clientes\n→ Tu producto\n→ Tu equipo\n\n{hashtags}'];
+const SCORES = [94, 88, 82, 91, 78, 86, 93, 75, 89, 85];
+
+function generatePosts(brand) {
+  const hooks = HOOKS[tone] || HOOKS.profesional;
+  const hashes = HASHTAG_SETS[platform];
+  const brandStr = brand || 'tu empresa';
+  const posts = [];
+  for (let i=0;i<count;i++) {
+    const hook = hooks[i%hooks.length];
+    const body = BODY_TEMPLATES[i%BODY_TEMPLATES.length].replace(/{brand}/g,brandStr).replace(/{hashtags}/g,hashes);
+    const score = SCORES[i%SCORES.length];
+    const chars = (hook+'\n\n'+body).length;
+    const media = uploadedMedia[i%uploadedMedia.length]||null;
+    posts.push({hook,body,score,chars,index:i+1,media});
+  }
+  return posts;
+}
+
+function renderPosts(posts, brand) {
+  const grid=document.getElementById('postsGrid');
+  const hasMedia=uploadedMedia.length>0;
+  document.getElementById('resultsTitle').innerHTML=`${posts.length} POSTS<br>GENERADOS`;
+  document.getElementById('resultsMeta').innerHTML=`<span>OmniMind: <span style="color:var(--green)">activo</span></span>`;
+  document.getElementById('summaryBar').innerHTML=`<div class="summary-chip"><b>${PLATFORM_LABELS[platform]}</b></div><div class="summary-chip">Tono: <b>${tone}</b></div><div class="summary-chip">Marca: <b>${brand||'N/A'}</b></div>${hasMedia?`<div class="summary-chip" style="color:var(--green);border-color:rgba(0,255,136,0.3)">📎 <b>${uploadedMedia.length} media</b></div>`:''}`;
+  grid.innerHTML='';
+  posts.forEach((post,i) => {
+    const delay=i*110;
+    const card=document.createElement('div');
+    card.className='post-card';
+    card.style.animationDelay=`${delay}ms`;
+    const fullText=`${post.hook}\n\n${post.body}`;
+    const overLimit=post.chars>PLATFORM_LIMITS[platform];
+    const scoreColor=post.score>=88?'var(--green)':post.score>=78?'var(--accent)':'var(--gold)';
+    const mediaHTML=post.media?`<div class="post-media-preview">${post.media.type==='video'?`<video src="${post.media.url}" controls muted loop></video>`:`<img src="${post.media.url}" alt="media">`}<div class="media-overlay">${post.media.source==='bot'?'🤖 vía bot':'📁 local'} · ${post.media.name}</div></div>`:'';
+    card.innerHTML=`<div class="post-header"><div class="post-number">POST 0${post.index}</div><div class="post-badges"><span class="badge badge-platform">${PLATFORM_LABELS[platform]}</span><span class="badge badge-tone">${tone}</span><span class="badge badge-hook">HOOK ★</span>${post.media?'<span class="badge badge-media">📎 MEDIA</span>':''}</div></div><div class="score-bar-wrap"><div class="score-label">Engagement Score</div><div class="score-track"><div class="score-fill" style="width:0%" data-score="${post.score}"></div></div><div class="score-value" style="color:${scoreColor}">${post.score}</div></div>${mediaHTML}<div class="post-body"><div class="post-hook">${escapeHTML(post.hook)}</div><div class="post-content">${formatContent(post.body)}</div></div><div class="post-footer"><div class="post-stats"><div class="stat-item">CHARS <span class="stat-value">${post.chars}</span></div><div class="stat-item">LÍMITE <span class="stat-value" style="color:${overLimit?'var(--rose)':'var(--green)'}">${PLATFORM_LIMITS[platform].toLocaleString()}</span></div></div><div class="post-actions"><button class="action-btn copy-btn" onclick="copyPost(this)">⎘ Copiar</button><button class="action-btn save-btn">★ Guardar</button></div></div>`;
+    card.querySelector('.copy-btn').dataset.text=fullText;
+    grid.appendChild(card);
+    setTimeout(()=>{const fill=card.querySelector('.score-fill');if(fill)fill.style.width=fill.dataset.score+'%';},delay+500);
+  });
+}
+
+function formatContent(text) { return escapeHTML(text).replace(/(#[\w\u00C0-\u017E]+)/g,'<span class="hashtag">$1</span>').replace(/→/g,'<span class="arrow">→</span>'); }
+function escapeHTML(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function copyPost(btn) {
+  const text=btn.dataset.text||'';
+  navigator.clipboard.writeText(text).then(()=>showToast('✓ Copiado','var(--green)')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✓ Copiado','var(--green)');});
+}
+
+function showToast(msg,bg='var(--green)') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=bg; t.style.color=bg==='var(--green)'?'#000':'#fff';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function regenOne() {
+  const cards=document.querySelectorAll('.post-card');
+  if(!cards.length)return;
+  const idx=Math.floor(Math.random()*cards.length);
+  cards[idx].style.opacity='0.4';
+  setTimeout(()=>{cards[idx].style.opacity='1';showToast('↺ Post regenerado','var(--accent)');},800);
+}
+
+async function generateContent() {
+  const brand = document.getElementById('brand').value.trim();
+  const topic = document.getElementById('topic').value.trim();
+
+  if (!topic) {
+    showToast('❌ Describe el tema o contenido que quieres generar', 'var(--rose)');
+    return;
+  }
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultsState').classList.remove('active');
+  document.getElementById('loadingState').classList.add('active');
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('rightPanel').scrollTo({ top: 0, behavior: 'smooth' });
+  startLoader();
+
+  try {
+    const response = await fetch('/api/social/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, platform, tone, brand, count })
+    });
+
+    const data = await response.json();
+    stopLoader();
+    document.getElementById('loadingState').classList.remove('active');
+    document.getElementById('generateBtn').disabled = false;
+
+    if (!data.success) {
+      showToast('❌ Error generando contenido: ' + (data.error || 'API no disponible'), 'var(--rose)');
+      document.getElementById('emptyState').style.display = 'flex';
+      return;
+    }
+
+    document.getElementById('resultsState').classList.add('active');
+    renderAIPosts(data.posts, brand);
+
+  } catch (err) {
+    stopLoader();
+    document.getElementById('loadingState').classList.remove('active');
+    document.getElementById('generateBtn').disabled = false;
+    showToast('❌ Error de conexión con la IA', 'var(--rose)');
+    document.getElementById('emptyState').style.display = 'flex';
+  }
+}
+
+function renderAIPosts(posts, brand) {
+  const grid = document.getElementById('postsGrid');
+  document.getElementById('resultsTitle').innerHTML = `${posts.length} POSTS<br>GENERADOS`;
+  document.getElementById('resultsMeta').innerHTML = `<span>OmniMind: <span style="color:var(--green)">activo · IA real</span></span>`;
+  document.getElementById('summaryBar').innerHTML = `<div class="summary-chip"><b>${PLATFORM_LABELS[platform]}</b></div><div class="summary-chip">Tono: <b>${tone}</b></div><div class="summary-chip">Marca: <b>${brand || 'N/A'}</b></div>${uploadedMedia.length ? `<div class="summary-chip" style="color:var(--green);border-color:rgba(0,255,136,0.3)">📎 <b>${uploadedMedia.length} media</b></div>` : ''}`;
+  grid.innerHTML = '';
+
+  posts.forEach((post, i) => {
+    const scoreColor = post.score >= 88 ? 'var(--green)' : post.score >= 78 ? 'var(--accent)' : 'var(--gold)';
+    const fullText = [post.hook, post.body, post.cta, post.hashtags].filter(Boolean).join('\n\n');
+    const mediaItem = uploadedMedia[i % uploadedMedia.length] || null;
+    const mediaHTML = mediaItem ? `<div class="post-media-preview">${mediaItem.type === 'video' ? `<video src="${mediaItem.url}" controls muted loop></video>` : `<img src="${mediaItem.url}" alt="media">`}<div class="media-overlay">${mediaItem.source === 'bot' ? '🤖 vía bot' : '📁 local'} · ${mediaItem.name}</div></div>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.style.animationDelay = `${i * 110}ms`;
+    card.innerHTML = `
+      <div class="post-header">
+        <div class="post-number">POST 0${i + 1}</div>
+        <div class="post-badges">
+          <span class="badge badge-platform">${PLATFORM_LABELS[platform]}</span>
+          <span class="badge badge-tone">${tone}</span>
+          <span class="badge badge-hook">HOOK ★</span>
+          ${mediaItem ? '<span class="badge badge-media">📎 MEDIA</span>' : ''}
+          <span class="badge" style="background:rgba(0,229,255,0.12);color:var(--accent);border:1px solid rgba(0,229,255,0.3)">✦ IA REAL</span>
+        </div>
+      </div>
+      <div class="score-bar-wrap">
+        <div class="score-label">Engagement Score</div>
+        <div class="score-track"><div class="score-fill" style="width:0%" data-score="${post.score}"></div></div>
+        <div class="score-value" style="color:${scoreColor}">${post.score}</div>
+      </div>
+      ${mediaHTML}
+      <div class="post-body">
+        ${post.hook ? `<div class="post-hook">${escapeHTML(post.hook)}</div>` : ''}
+        <div class="post-content">${formatContent(post.body)}</div>
+        ${post.cta ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(0,229,255,0.06);border-left:2px solid var(--accent);border-radius:4px;font-size:11px;color:var(--accent)">→ ${escapeHTML(post.cta)}</div>` : ''}
+        ${post.hashtags ? `<div style="margin-top:8px">${formatContent(post.hashtags)}</div>` : ''}
+      </div>
+      <div class="post-footer">
+        <div class="post-stats">
+          <div class="stat-item">CHARS <span class="stat-value">${fullText.length}</span></div>
+          <div class="stat-item">LÍMITE <span class="stat-value" style="color:${fullText.length > PLATFORM_LIMITS[platform] ? 'var(--rose)' : 'var(--green)'}">${PLATFORM_LIMITS[platform].toLocaleString()}</span></div>
+        </div>
+        <div class="post-actions">
+          <button class="action-btn copy-btn" onclick="copyPost(this)">⎘ Copiar</button>
+          <button class="action-btn save-btn">★ Guardar</button>
+        </div>
+      </div>`;
+    card.querySelector('.copy-btn').dataset.text = fullText;
+    grid.appendChild(card);
+    setTimeout(() => { const fill = card.querySelector('.score-fill'); if (fill) fill.style.width = fill.dataset.score + '%'; }, i * 110 + 500);
+  });
+}
+
+</script>
+</body>
+</html>

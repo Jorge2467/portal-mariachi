@@ -19,6 +19,7 @@
     "@aws-sdk/client-s3": "^3.1017.0",
     "@aws-sdk/s3-request-presigner": "^3.1017.0",
     "@google/genai": "^1.46.0",
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "dotenv": "^17.3.1",

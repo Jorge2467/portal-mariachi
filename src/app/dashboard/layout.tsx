@@ -41,6 +41,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/dashboard/eventos" className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-light hover:text-white hover:bg-white/5 transition-colors">
               <Calendar size={18} /> Mis Eventos
             </Link>
+            <Link href="/dashboard/estudio-viral" className="flex items-center gap-3 px-4 py-3 rounded-lg text-white font-bold bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 hover:bg-blue-600/30 transition-all shadow-[0_0_15px_rgba(59,130,246,0.15)] mt-2">
+               <span>✧</span> Estudio Viral IA
+            </Link>
             
             {isAdmin && (
               <div className="mt-4 pt-4 border-t border-white/10">
